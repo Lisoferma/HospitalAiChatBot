@@ -2,7 +2,7 @@ using System.Net;
 
 namespace HospitalAIChatbot.Source.Models
 {
-    public interface IAsynchrousChatClient : IDisposable
+    public interface IAsyncChatClient : IDisposable
     {
         Task ConnectAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken = default);
         Task DisconnectAsync(CancellationToken cancellationToken = default);
