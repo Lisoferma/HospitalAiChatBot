@@ -26,9 +26,9 @@ namespace HospitalAiChatbot.Source.Models
             ObjectDisposedException.ThrowIf(_disposed, this);
             _httpClient.BaseAddress = Configuration.ApiUri;
             overridingSuffix ??= Configuration.Suffix;
-            var query = $@"{{ 'model': '{Configuration.ModelName}',
-                        'promt': '{promt}', 'suffix': '{overridingSuffix}',
-                        'stream': {Configuration.IsStreamResponce} }}";
+            var query = $"{{ 'model': '{Configuration.ModelName}'," +
+                        $"'promt': '{promt}', 'suffix': '{overridingSuffix}'," +
+                        $"'stream': {Configuration.IsStreamResponce} }}";
             var responce = await _httpClient.PostAsync(query, null, cancellationToken);
             string responceContent = await responce.Content.ReadAsStringAsync(cancellationToken);
 
