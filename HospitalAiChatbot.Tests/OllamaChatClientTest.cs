@@ -24,7 +24,7 @@ namespace HospitalAiChatbot.Tests
             };
             OllamaChatClientConfiguration config = new(
                 new("http://localhost:11434/api/generate"),
-                "genna3:1b",
+                "gemma3:1b",
                 @$"Give your answer on RUSSIAN language only and keep answer in range of possible scenarios:
                 [ {string.Join('\n', scenariosDescriptions.Select(pair => $"{pair.Key}: {pair.Value};"))} ]",
                 false);
