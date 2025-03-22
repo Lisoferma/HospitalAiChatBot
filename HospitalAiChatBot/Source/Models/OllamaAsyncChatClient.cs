@@ -2,7 +2,7 @@ using HospitalAIChatbot.Source.Models;
 
 namespace HospitalAiChatbot.Source.Models
 {
-    public class LlmAsyncChatClient : IDisposable
+    public class OllamaAsyncChatClient : IDisposable
     {
         bool _disposed = false;
         readonly HttpClient _httpClient = new();
@@ -14,7 +14,7 @@ namespace HospitalAiChatbot.Source.Models
                 return;
 
             _httpClient.Dispose();
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);  
             _disposed = true;
         }
 
