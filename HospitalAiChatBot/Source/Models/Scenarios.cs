@@ -1,4 +1,4 @@
-namespace HospitalAIChatbot.Source.Models
+namespace HospitalAiChatbot.Source.Models
 {
     public enum Scenarios
     {

@@ -1,5 +1,3 @@
-using HospitalAIChatbot.Source.Models;
-
 namespace HospitalAiChatbot.Source.Models
 {
     public class OllamaAsyncChatClient : IDisposable
@@ -14,7 +12,7 @@ namespace HospitalAiChatbot.Source.Models
                 return;
 
             _httpClient.Dispose();
-            GC.SuppressFinalize(this);  
+            GC.SuppressFinalize(this);
             _disposed = true;
         }
 
@@ -34,7 +32,7 @@ namespace HospitalAiChatbot.Source.Models
             var responce = await _httpClient.PostAsync(query, null, cancellationToken);
             string responceContent = await responce.Content.ReadAsStringAsync(cancellationToken);
 
-            return $"Code {responce.StatusCode}: {responceContent};";
+            return responceContent;
         }
     }
 }
