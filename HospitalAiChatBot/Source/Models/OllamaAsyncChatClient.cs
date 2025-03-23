@@ -1,13 +1,23 @@
 using System.Text;
 using System.Text.Json;
+using HospitalAiChatBot.Source.Models;
 
 namespace HospitalAiChatbot.Source.Models
 {
-    public class OllamaAsyncChatClient : IDisposable
+    /// <summary>
+    /// Конфигурация чат клиента для модели развёрнутой с помощью <see cref="https://ollama.com/">Ollama</see> 
+    /// </summary>
+    /// <param name="ApiUri">URI API адрес развёрнутой LLM модели</param>
+    /// <param name="ModelName">Имя модели</param>
+    /// <param name="Suffix">Суффикс к запросу модели. <see cref="https://ollama.icu/api/#Generate_a_completion">Ollama API документация</see></param>
+    /// <param name="IsStreamResponce">Получить ли ответ в виде потока или в виде одного сообщения</param>
+    public record OllamaChatClientConfiguration(Uri ApiUri, string ModelName, string? Suffix = null, bool IsStreamResponce = true);
+
+    public class OllamaAsyncChatClient : IAsyncLlmChatClient
     {
         bool _disposed = false;
         readonly HttpClient _httpClient = new();
-        public OllamaChatClientConfiguration Configuration;
+        public required OllamaChatClientConfiguration Configuration { get; set; }
 
         public void Dispose()
         {
@@ -19,22 +29,16 @@ namespace HospitalAiChatbot.Source.Models
             _disposed = true;
         }
 
-        /// <summary>
-        /// Send promt to LLM with HTTP client
-        /// </summary>
-        /// <returns>Responce from LLM</returns>
-        /// <exception cref="ObjectDisposedException"/>
-        /// <exception cref="HttpRequestException"/>
-        public async Task<string?> SendPromtAsync(string promt, string? overridingSuffix = null, CancellationToken cancellationToken = default)
+        /// <inheritdoc />
+        /// <exception cref="HttpRequestException" />
+        public async Task<string?> SendPromtAsync(string promt, CancellationToken cancellationToken = default)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            overridingSuffix ??= Configuration.Suffix;
-
             var queryParameters = new
             {
                 model = Configuration.ModelName,
                 promt,
-                suffix = overridingSuffix!,
+                suffix = Configuration.Suffix,
                 stream = Configuration.IsStreamResponce,
             };
             var queryJson = JsonSerializer.Serialize(queryParameters)!;
