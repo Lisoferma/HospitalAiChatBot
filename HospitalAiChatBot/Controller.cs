@@ -1,4 +1,4 @@
-﻿using HospitalAIChatbot.Source.Models;
+﻿using HospitalAiChatbot.Source.Models;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
