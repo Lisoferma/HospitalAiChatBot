@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using HospitalAiChatBot.Source.Models;
+using HospitalAiChatBot.Source.Models.LlmChatClient;
 
-namespace HospitalAiChatbot.Source.Models
+namespace HospitalAiChatbot.Source.Models.LlmChatClient
 {
     /// <summary>
     /// Конфигурация чат клиента для модели развёрнутой с помощью <see cref="https://ollama.com/">Ollama</see> 

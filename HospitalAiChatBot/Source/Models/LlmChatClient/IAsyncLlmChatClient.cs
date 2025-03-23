@@ -1,4 +1,4 @@
-namespace HospitalAiChatBot.Source.Models
+namespace HospitalAiChatBot.Source.Models.LlmChatClient
 {
     public interface IAsyncLlmChatClient : IDisposable
     {
