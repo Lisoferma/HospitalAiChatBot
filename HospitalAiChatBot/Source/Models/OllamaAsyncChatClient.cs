@@ -1,3 +1,6 @@
+using System.Text;
+using System.Text.Json;
+
 namespace HospitalAiChatbot.Source.Models
 {
     public class OllamaAsyncChatClient : IDisposable
@@ -17,22 +20,28 @@ namespace HospitalAiChatbot.Source.Models
         }
 
         /// <summary>
-        /// Send promt to LLM
+        /// Send promt to LLM with HTTP client
         /// </summary>
         /// <returns>Responce from LLM</returns>
         /// <exception cref="ObjectDisposedException"/>
+        /// <exception cref="HttpRequestException"/>
         public async Task<string?> SendPromtAsync(string promt, string? overridingSuffix = null, CancellationToken cancellationToken = default)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            _httpClient.BaseAddress = Configuration.ApiUri;
             overridingSuffix ??= Configuration.Suffix;
-            var query = $"{{ 'model': '{Configuration.ModelName}'," +
-                        $"'promt': '{promt}', 'suffix': '{overridingSuffix}'," +
-                        $"'stream': {Configuration.IsStreamResponce} }}";
-            var responce = await _httpClient.PostAsync(query, null, cancellationToken);
-            string responceContent = await responce.Content.ReadAsStringAsync(cancellationToken);
 
-            return responceContent;
+            var queryParameters = new
+            {
+                model = Configuration.ModelName,
+                promt,
+                suffix = overridingSuffix!,
+                stream = Configuration.IsStreamResponce,
+            };
+            var queryJson = JsonSerializer.Serialize(queryParameters)!;
+            var query = new StringContent(queryJson, Encoding.UTF8, "application/json");
+            var responce = await _httpClient.PostAsync(Configuration.ApiUri, query, cancellationToken);
+            responce.EnsureSuccessStatusCode();
+            return await responce.Content.ReadAsStringAsync(cancellationToken);
         }
     }
 }
