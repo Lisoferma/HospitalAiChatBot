@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using HospitalAiChatBot.Source.Models;
+using HospitalAiChatBot.Source.Models.LlmChatClient;
 
-namespace HospitalAiChatbot.Source.Models
+namespace HospitalAiChatbot.Source.Models.LlmChatClient
 {
     /// <summary>
     /// Конфигурация чат клиента для модели развёрнутой с помощью <see cref="https://ollama.com/">Ollama</see> 
@@ -11,7 +11,7 @@ namespace HospitalAiChatbot.Source.Models
     /// <param name="ModelName">Имя модели</param>
     /// <param name="Suffix">Суффикс к запросу модели. <see cref="https://ollama.icu/api/#Generate_a_completion">Ollama API документация</see></param>
     /// <param name="IsStreamResponce">Получить ли ответ в виде потока или в виде одного сообщения</param>
-    public record OllamaChatClientConfiguration(Uri ApiUri, string ModelName, string? Suffix = null, bool IsStreamResponce = true);
+    public record OllamaChatClientConfiguration(Uri ApiUri, string ModelName, bool IsStreamResponce = true);
 
     public class OllamaAsyncChatClient : IAsyncLlmChatClient
     {
@@ -38,7 +38,6 @@ namespace HospitalAiChatbot.Source.Models
             {
                 model = Configuration.ModelName,
                 promt,
-                suffix = Configuration.Suffix,
                 stream = Configuration.IsStreamResponce,
             };
             var queryJson = JsonSerializer.Serialize(queryParameters)!;

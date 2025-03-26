@@ -4,7 +4,7 @@ namespace HospitalAiChatbot.Tests
 {
     public class OllamaChatClientTest
     {
-        [TestCase("gemma3:12b")]
+        [TestCase("gemma3:4b")]
         public async Task GetResponceTest(string modelName)
         {
             Dictionary<Scenarios, string> scenariosDescriptions = new() {
@@ -23,11 +23,12 @@ namespace HospitalAiChatbot.Tests
             OllamaChatClientConfiguration config = new(
                 new("http://localhost:11434/api/generate"),
                 modelName,
-                "Give your answer on RUSSIAN language only and keep answer in range of possible scenarios, which pointed earlier" +
-                $"( {string.Join(' ', scenariosDescriptions.Select(pair => $"{pair.Key}: {pair.Value};"))} )",
                 false);
 
-            var promt = "You are a default citizen and a client of hospital. Write a text query for hospital";
+            var promt = "You are a default citizen and a client of hospital. Generate a text query for hospital" +
+            "Generate answer on RUSSIAN ONLY. Don't reply as a hospital, only generate one query/ask as a client." +
+            "Keep answer in ONLY ONE of range of possible scenarios" +
+            $"( {string.Join(' ', scenariosDescriptions.Select(pair => $"{pair.Key}: {pair.Value};"))} )";
             OllamaAsyncChatClient client = new()
             {
                 Configuration = config
