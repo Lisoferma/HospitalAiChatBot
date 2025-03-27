@@ -5,12 +5,12 @@ namespace HospitalAiChatbot.Source.Models.Llm;
 /// <summary>
 ///     Ассинхронный клиент чата с LLM
 /// </summary>
-public interface IAsyncLlmChatClient
+public interface IAsyncLlmChatClient<TConfiguration> where TConfiguration : LlmChatClientConfiguration
 {
     /// <summary>
     ///     Конфигурация клиента чата
     /// </summary>
-    LlmChatClientConfiguration Configuration { get; set; }
+    TConfiguration Configuration { get; set; }
 
     /// <summary>
     ///     Общий список сообщений чата
@@ -19,7 +19,7 @@ public interface IAsyncLlmChatClient
 
     /// <summary>
     ///     Список первоначальных сообщений чата, которые являются инициализирующими сообщениями чата.
-    ///     <remarks>Данные сообщения остаются после <see cref="IAsyncLlmChatClient.ResetChat">сброса чата</see></remarks>
+    ///     <remarks>Данные сообщения остаются после <see cref="ResetChat">сброса чата</see></remarks>
     /// </summary>
     IEnumerable<LlmChatMessage> StartChatMessages { get; }
 
@@ -27,7 +27,7 @@ public interface IAsyncLlmChatClient
     ///     <para>Очищает весь список сообщений чата, инициализируя новый чат с LLM.</para>
     ///     <remarks>
     ///         При сбросе в списке сообщений остаются
-    ///         <see cref="IAsyncLlmChatClient.StartChatMessages">первоначальные сообщения</see>
+    ///         <see cref="StartChatMessages">первоначальные сообщения</see>
     ///     </remarks>
     /// </summary>
     void ResetChat();
