@@ -9,8 +9,19 @@ namespace HospitalAiChatbot.Source.Models
     /// </summary>
     public class ChitgmaClinicScraper : IHospitalInformationProvider
     {
+        /// <summary>
+        /// URL-адрес на файл с ценами на медицинские услуги.  
+        /// </summary>
+        public const string PRICE_LIST_URL = "https://clinica.chitgma.ru/images/Preyskurant/2025/1DP.pdf";
+
+        /// <summary>
+        /// URL-адрес на файл с памятками для пациентов по подготовке к диагностическим исследованиям.
+        /// </summary>
+        public const string PREPARING_PROCEDURE_URL = "https://clinica.chitgma.ru/images/Preyskurant/2025/1DP.pdf";
+
+
         /// <inheritdoc/>
-        public static string GetOpeningHours()
+        public string GetOpeningHours()
         {
             const string url = "https://clinica.chitgma.ru/informatsiya-po-otdeleniyu-9";
             const string selector = "//*[@id=\"component2\"]/div[2]/div/p[position() >= 22 and position() <= 24]";
@@ -35,7 +46,7 @@ namespace HospitalAiChatbot.Source.Models
 
 
         /// <inheritdoc/>
-        public static string GetCallCenterContacts()
+        public string GetCallCenterContacts()
         {
             const string url = "https://clinica.chitgma.ru/contact";
             const string selector = "//*[@id=\"component2\"]/div[2]/div/p[24]/span/text()";
@@ -49,6 +60,20 @@ namespace HospitalAiChatbot.Source.Models
             result = result.Trim();
 
             return result;
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<byte[]> DownloadPriceListAsync()
+        {
+            return await FileDownloader.DownloadFileAsync(PRICE_LIST_URL);
+        }
+
+
+        /// <inheritdoc/>
+        public async Task<byte[]> DownloadPreparingProcedureAsync()
+        {
+            return await FileDownloader.DownloadFileAsync(PREPARING_PROCEDURE_URL);
         }
 
 
