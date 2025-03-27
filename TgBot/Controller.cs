@@ -1,4 +1,5 @@
 ﻿using HospitalAiChatbot.Source.Models;
+using Microsoft.AspNetCore.Http;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -6,69 +7,97 @@ using Telegram.Bot.Types.Enums;
 
 class Controller
 {
-    private TelegramBotClient bot;
-    private Dictionary<long, UserState> idToUserState;
-    //private IHospitalSiteScraper scraper;
+    private TelegramBotClient _bot;
+    private Dictionary<long, UserState> _idToUserState;
+    private HttpClient _httpClient;
+    private Dictionary<String, Scenarios> _strToScenario;
+    private const string _webApiUrl = "http://localhost:5000";
 
     public Controller(TelegramBotClient aBot, Dictionary<long, UserState> idToUserState)
     {
-        bot = aBot;
+        _bot = aBot;
 
-        bot.OnError += OnError;
-        bot.OnMessage += OnMessage;
+        _bot.OnError += OnError;
+        _bot.OnMessage += OnMessage;
 
-        this.idToUserState = idToUserState;
+        this._idToUserState = idToUserState;
 
-        //scraper = new RzdMedicineSiteScraper();
+        _strToScenario = new();
+
+        _strToScenario.Add("Контакты колл-центра и часы работы", Scenarios.GetWorkTimeAndContacts);
+        _strToScenario.Add("Часы работы специалиста", Scenarios.GetDoctorWorkTime);
+        _strToScenario.Add("Подготовка к исследованию", Scenarios.GetExaminationPrepareInfo);
+        _strToScenario.Add("Время изготовления анализов", Scenarios.GetSamplesPreparingTimeInfo);
+        _strToScenario.Add("Записаться к специалисту", Scenarios.MakeAppointment);
+        _strToScenario.Add("Обратная связь", Scenarios.Feedback);
+        _strToScenario.Add("Связаться с оператором", Scenarios.CommunicationWithOperator);
+
+        _httpClient = new HttpClient();
     }
 
+
+    /// <summary>
+    /// Обработчик для первого сообщения пользователя после /start
+    /// </summary>
+    /// <param name="msg">Сообщение пользователя</param>
+    /// <returns></returns>
     async Task OnStartMessage(Message msg)
     {
         long userId = msg.From.Id;
 
         string startMsg;
 
-        if (idToUserState.ContainsKey(userId))
+        if (_idToUserState.ContainsKey(userId))
         {
-            UserState state = idToUserState[userId];
+            UserState state = _idToUserState[userId];
             state.IsAtStart = true;
             startMsg = "Что-нибудь еще?";
         }
 
         else
         {
-            startMsg = """
-            Здравствуйте!
-            Я могу записать вас к врачу, поделиться с вами информацией о поликлинике и т.п.
-            Что вы хотите сделать?
-            """;
+            startMsg = "Здравствуйте! Вы обратились в чат-бот поликлиники. Мы готовы ответить на" +
+                " ваши вопросы и помочь с записью к врачу, информацией о расписании работы" +
+                " специалистов, а также предоставить данные о необходимых документах и услугах" +
+                " нашей клиники. Пожалуйста, уточните ваш вопрос или просьбу.";
             UserState state = new UserState();
-            idToUserState.Add(userId, state);
+            _idToUserState.Add(userId, state);
         }
 
+        // Добавление кнопок выполнения сценариев
+        string[] buttonNames = _strToScenario.Keys.ToArray();
 
-        Dictionary<Scenarios, String> scenarioToStr = new();
-
-        scenarioToStr.Add(Scenarios.GetWorkTimeAndContacts, "Контакты колл-центра и часы работы");
-        scenarioToStr.Add(Scenarios.GetDoctorWorkTime, "Часы работы специалиста");
-        scenarioToStr.Add(Scenarios.GetExaminationPrepareInfo, "Подготовка к исследованию");
-        scenarioToStr.Add(Scenarios.GetSamplesPreparingTimeInfo, "Время изготовления анализов");
-        scenarioToStr.Add(Scenarios.MakeAppointment, "Записаться к специалисту");
-        scenarioToStr.Add(Scenarios.Feedback, "Обратная связь");
-        scenarioToStr.Add(Scenarios.CommunicationWithOperator, "Связаться с оператором");
-
-        string[] buttonNames = scenarioToStr.Values.ToArray();
-
-        string[][] customKeyboard = new string[scenarioToStr.Count][];
+        string[][] customKeyboard = new string[_strToScenario.Count][];
 
         for (int i = 0; i < buttonNames.Length; i++)
         {
             customKeyboard[i] = new string[] { buttonNames[i] };
         }
 
-        await bot.SendMessage(msg.Chat, startMsg, replyMarkup: customKeyboard);
+        await _bot.SendMessage(msg.Chat, startMsg, replyMarkup: customKeyboard);
     }
 
+    /// <summary>
+    /// Отвечает пользователю контактами колл-центра и временем работы поликлиники
+    /// </summary>
+    /// <param name="msg">Сообщение пользователя</param>
+    /// <returns></returns>
+    async Task OnGetWorkTimeAndContacts(Message msg)
+    {
+        HttpResponseMessage contactsResp = await _httpClient.GetAsync(_webApiUrl + "/api/scrape/callcentercontacts");
+        HttpResponseMessage workTimeResp = await _httpClient.GetAsync(_webApiUrl + "/api/scrape/openinghours");
+
+        string contacts = await contactsResp.Content.ReadAsStringAsync();
+        string workTime = await workTimeResp.Content.ReadAsStringAsync();
+
+        await _bot.SendMessage(msg.Chat, $"""
+            Контакты колл-центра:
+            {contacts}
+
+            Время работы:
+            {workTime}
+            """);
+    }
 
 
     // Общие методы: обработчик ошибок и обработчик получений сообщений
@@ -83,23 +112,20 @@ class Controller
     async Task OnMessage(Message msg, UpdateType type)
     {
         // Если в таблице не хранится состояния пользователя, тоже переходим к OnStartMessage
-        if (msg.Text == "/start" || !idToUserState.ContainsKey(msg.From.Id))
+        if (msg.Text == "/start" || !_idToUserState.ContainsKey(msg.From.Id))
         {
             await OnStartMessage(msg);
         }
 
-        else if (msg.Text.ToLower().Contains("часы"))
-        {
-            string workingHours = "Пн-пт: с 08:00 до 20:00\nСб: с 08:00 до 14:00";
-            await bot.SendMessage(msg.Chat, workingHours);
-            await OnStartMessage(msg);
-        }
+        // !IsAtStart должен быть обработан здесь
 
-        else if (msg.Text.ToLower().Contains("контакты"))
+        else if (_strToScenario.ContainsKey(msg.Text))
         {
-            string contacts = "Баргузинская 49";
-            await bot.SendMessage(msg.Chat, contacts);
-            await OnStartMessage(msg);
+            Scenarios scenario = _strToScenario[msg.Text];
+            if (scenario == Scenarios.GetWorkTimeAndContacts)
+            {
+                await OnGetWorkTimeAndContacts(msg);
+            }
         }
     }
 }

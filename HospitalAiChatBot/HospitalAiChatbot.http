@@ -1,0 +1,27 @@
+﻿@HospitalAiChatbot_HostAddress = http://localhost:5045
+
+GET {{OpenAPIServer_HostAddress}}/api/health
+
+###
+
+POST {{OpenAPIServer_HostAddress}}/api/qa
+Content-Type: application/json
+
+"куестион"
+
+###
+
+POST {{OpenAPIServer_HostAddress}}/api/feedback
+Content-Type: application/json
+
+"нормально"
+
+###
+
+GET {{HospitalAiChatbot_HostAddress}}/api/scrape/callcentercontacts
+
+###
+
+GET {{HospitalAiChatbot_HostAddress}}/api/scrape/openinghours
+
+###
