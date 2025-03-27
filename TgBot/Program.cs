@@ -14,7 +14,7 @@ try
 catch (FileNotFoundException)
 {
     Console.WriteLine("Не найден файл с токеном token.txt");
-    Console.WriteLine("Программа завершается");
+    Console.WriteLine("Программа не может выполняться без этого файла");
     return;
 }
 
