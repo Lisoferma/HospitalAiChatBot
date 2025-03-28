@@ -35,11 +35,11 @@ public interface IAsyncLlmChatClient<TConfiguration, TMessage>
     internal void ResetChat();
 
     /// <summary>
-    ///     Получает ответ от LLM  на сообщение клиента.
+    ///     Посылает сообщение в чат и получает ответ от LLM  на сообщение.
     ///     <remarks>Ответ будет добавлен в конец списка сообщений чата.</remarks>
     /// </summary>
     /// <param name="message">Сообщение клиента</param>
     /// <param name="cancellationToken">Токен отмены</param>
     /// <returns>Ответ от LLM</returns>
-    internal Task<TMessage> GetAnswerToTheMessage(TMessage message, CancellationToken cancellationToken = default);
+    internal Task<TMessage> SendMessage(TMessage message, CancellationToken cancellationToken = default);
 }
