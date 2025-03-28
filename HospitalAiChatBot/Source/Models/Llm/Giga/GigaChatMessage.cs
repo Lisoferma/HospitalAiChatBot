@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace HospitalAiChatBot.Source.Models.Llm.Giga;
 
-public class GigaChatMessage(string content, LlmChatMessageAuthorRole role, string[] attachments)
+public class GigaChatMessage(string content, LlmChatMessageAuthorRole role, string[]? attachments = null)
     : LlmChatMessage(content, role)
 {
     [JsonPropertyName("attachments")]
@@ -14,5 +14,5 @@ public class GigaChatMessage(string content, LlmChatMessageAuthorRole role, stri
     ///         Подробнее о работе с файлами с GigaChat API
     ///     </see>
     /// </summary>
-    public string[] Attachments = attachments;
+    public string[] Attachments = attachments ?? [];
 }
