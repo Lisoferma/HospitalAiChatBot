@@ -1,7 +1,7 @@
-using HospitalAiChatBot.Source.Models.Llm;
-using HospitalAiChatBot.Source.Models.Llm.Giga;
+using HospitalAiChatBot.Models.Llm;
+using HospitalAiChatBot.Models.Llm.Giga;
 
-namespace HospitalAiChatbot.Tests;
+namespace HospitalAiChatBot.Tests;
 
 [TestFixture]
 public class AsyncGigaChatClientTests

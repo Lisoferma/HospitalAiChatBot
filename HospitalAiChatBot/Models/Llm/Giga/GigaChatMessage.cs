@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace HospitalAiChatBot.Source.Models.Llm.Giga;
+namespace HospitalAiChatBot.Models.Llm.Giga;
 
 public class GigaChatMessage(string content, LlmChatMessageAuthorRole role, string[]? attachments = null)
     : LlmChatMessage(content, role)

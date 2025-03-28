@@ -1,4 +1,6 @@
-namespace HospitalAiChatbot.Source.Models;
+using HospitalAiChatBot.Models.ScenarioDeterminant;
+
+namespace HospitalAiChatBot.Models;
 
 public interface IAsyncScenarioDeterminant
 {

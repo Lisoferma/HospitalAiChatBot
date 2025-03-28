@@ -1,4 +1,4 @@
-﻿@HospitalAiChatbot_HostAddress = http://localhost:5045
+﻿@HospitalAiChatBot_HostAddress = http://localhost:5045
 
 GET {{OpenAPIServer_HostAddress}}/api/health
 
@@ -18,10 +18,10 @@ Content-Type: application/json
 
 ###
 
-GET {{HospitalAiChatbot_HostAddress}}/api/scrape/callcentercontacts
+GET {{HospitalAiChatBot_HostAddress}}/api/scrape/callcentercontacts
 
 ###
 
-GET {{HospitalAiChatbot_HostAddress}}/api/scrape/openinghours
+GET {{HospitalAiChatBot_HostAddress}}/api/scrape/openinghours
 
 ###

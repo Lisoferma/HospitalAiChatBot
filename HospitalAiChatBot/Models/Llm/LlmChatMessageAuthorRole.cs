@@ -1,4 +1,4 @@
-namespace HospitalAiChatBot.Source.Models.Llm;
+namespace HospitalAiChatBot.Models.Llm;
 
 /// <summary>
 ///     Роль автора сообщения в чате с LLM

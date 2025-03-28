@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace HospitalAiChatBot.Source.Models.Llm;
+namespace HospitalAiChatBot.Models.Llm;
 
 /// <summary>
 ///     Сообщение чата с LLM

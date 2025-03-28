@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace HospitalAiChatBot.Source.Models.Llm.Giga;
+namespace HospitalAiChatBot.Models.Llm.Giga;
 
 public class AsyncGigaChatClient(
     GigaChatClientConfiguration configuration,

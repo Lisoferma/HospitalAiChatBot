@@ -1,6 +1,6 @@
 // ReSharper disable InvalidXmlDocComment
 
-namespace HospitalAiChatBot.Source.Models.Llm.Giga;
+namespace HospitalAiChatBot.Models.Llm.Giga;
 
 /// <summary>
 ///     <para>Модели GigaChat.</para>

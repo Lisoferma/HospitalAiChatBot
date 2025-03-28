@@ -1,4 +1,4 @@
-namespace HospitalAiChatBot.Source.Models.Llm.Giga;
+namespace HospitalAiChatBot.Models.Llm.Giga;
 
 /// <inheritdoc />
 /// <summary>
