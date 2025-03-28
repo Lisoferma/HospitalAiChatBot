@@ -7,7 +7,11 @@ namespace HospitalAiChatBot.Source.Models.Llm.Giga;
 ///     Конфигурация чат-клиента GigaChat LLM
 /// </summary>
 /// <param name="ApiScope">Версия API чат-клиента</param>
+/// <param name="ClientId">API ID клиента</param>
+/// <param name="ClientSecret">API secret клиента</param>
 public record GigaChatClientConfiguration(
+    string ClientId,
+    string ClientSecret,
     GigaChatApiScope ApiScope,
     float Temperature = 0.7f,
     float TopP = 0.9f,
