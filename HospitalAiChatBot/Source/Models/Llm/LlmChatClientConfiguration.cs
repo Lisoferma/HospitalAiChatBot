@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HospitalAiChatbot.Source.Models.Llm;
+namespace HospitalAiChatBot.Source.Models.Llm;
 
 /// <summary>
-///     Конфигурация чта-клиента с LLM
+///     Общая конфигурация чта-клиента с LLM
 /// </summary>
 /// <param name="Temperature">
 ///     <para>Температура выборки.</para>
