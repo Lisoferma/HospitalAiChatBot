@@ -1,4 +1,5 @@
-﻿using Vosk;
+﻿using HospitalAiChatbot.Models.Services;
+using Vosk;
 
 namespace HospitalAiChatBot.Models;
 
@@ -47,5 +48,18 @@ public class VoskSpeechRecognizer : ISpeachRecognizer
             return _recognizer.Result();
 
         return _recognizer.PartialResult();
+    }
+
+
+    /// <summary>
+    ///     Распознать речь из OGG Stream
+    ///     c частотой дискретизации <see cref = "SampleRate" />, моно, 16-bit PCM.
+    /// </summary>
+    /// <param name="oggStream">Входной поток OGG (должен быть читаемым).</param>
+    /// <returns>Распознанная речь в виде текста.</returns>
+    public string RecognizeOggStream(Stream oggStream)
+    {
+        byte[] audioData = AudioFormatConverter.ConvertOggStreamToWavBytes(oggStream, (int)SampleRate);
+        return Recognize(audioData);
     }
 }
