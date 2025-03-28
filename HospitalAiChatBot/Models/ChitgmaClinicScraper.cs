@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using HospitalAiChatBot.Models.Services;
 using HtmlAgilityPack;
 
 namespace HospitalAiChatBot.Models;
