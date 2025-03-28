@@ -1,4 +1,4 @@
-﻿namespace HospitalAiChatBot.Models;
+﻿namespace HospitalAiChatBot.Models.Services;
 
 /// <summary>
 ///     Содержит метод для скачивания файлов по URL.
