@@ -5,30 +5,15 @@ using System.Text.Json.Nodes;
 
 namespace HospitalAiChatBot.Models.Llm.Giga;
 
-public class AsyncGigaChatClient(
-    GigaChatClientConfiguration configuration,
-    IEnumerable<GigaChatMessage>? startChatMessages = null)
-    : IAsyncLlmChatClient<GigaChatClientConfiguration, GigaChatMessage>, IDisposable
+/// <inheritdoc/>
+/// <summary>
+/// Ассинхронный клиент чата с GigaChat
+/// </summary>
+public class AsyncGigaChatClient(GigaChatClientConfiguration configuration, IEnumerable<GigaChatMessage>? startChatMessages = null)
+    : AsyncHttpLlmChatClient<GigaChatClientConfiguration, GigaChatMessage>(configuration, startChatMessages)
 {
-    private readonly List<GigaChatMessage> _chatMessages = [];
-    private readonly HttpClient _httpClient = new();
-
-    private readonly List<GigaChatMessage> _startChatMessages =
-        startChatMessages is null ? [] : startChatMessages.ToList();
-
     private string _accessToken = string.Empty;
-    private bool _isDisposed;
-
-    public GigaChatClientConfiguration Configuration { get; set; } = configuration;
-    public IEnumerable<GigaChatMessage> ChatMessages => _chatMessages;
-    public IEnumerable<GigaChatMessage> StartChatMessages => _startChatMessages;
-
-    public void ResetChat()
-    {
-        _chatMessages.Clear();
-        _chatMessages.AddRange(_startChatMessages);
-    }
-
+    
     /// <inheritdoc />
     /// <exception cref="ObjectDisposedException">Если клиент был уже закрыт</exception>
     /// <exception cref="HttpRequestException">
@@ -40,7 +25,7 @@ public class AsyncGigaChatClient(
     ///     <para>429 - Слишком много запросов в единицу времени.</para>
     /// </exception>
     /// <exception cref="ArgumentNullException">В случае нулевого ответа от API</exception>
-    public async Task<GigaChatMessage> SendMessage(GigaChatMessage message,
+    public override async Task<GigaChatMessage> SendMessage(GigaChatMessage message,
         CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
@@ -78,17 +63,6 @@ public class AsyncGigaChatClient(
         return new GigaChatMessage(answerContent, LlmChatMessageAuthorRole.Assistant);
     }
 
-
-    public void Dispose()
-    {
-        if (_isDisposed)
-            return;
-
-        _httpClient.Dispose();
-        GC.SuppressFinalize(this);
-        _isDisposed = true;
-    }
-
     /// <summary>
     ///     Обновляет токен доступа к API.
     ///     <remarks>
@@ -121,10 +95,5 @@ public class AsyncGigaChatClient(
 
         // TODO: проверка на нулевое значение
         _accessToken = (string)authTokenRequestResponse["access_token"]!;
-    }
-
-    ~AsyncGigaChatClient()
-    {
-        Dispose();
     }
 }
