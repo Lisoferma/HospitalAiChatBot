@@ -2,7 +2,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using HospitalAiChatbot.Source.Models.Llm;
 
 namespace HospitalAiChatBot.Source.Models.Llm.Giga;
 

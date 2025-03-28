@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HospitalAiChatbot.Source.Models.Llm;
+namespace HospitalAiChatBot.Source.Models.Llm;
 
 /// <summary>
 ///     Общая конфигурация чта-клиента с LLM

@@ -1,5 +1,3 @@
-using HospitalAiChatbot.Source.Models.Llm;
-
 namespace HospitalAiChatBot.Source.Models.Llm.Giga;
 
 /// <inheritdoc />

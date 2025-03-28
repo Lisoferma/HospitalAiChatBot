@@ -1,6 +1,4 @@
-using HospitalAiChatBot.Source.Models.Llm;
-
-namespace HospitalAiChatbot.Source.Models.Llm;
+namespace HospitalAiChatBot.Source.Models.Llm;
 
 /// <summary>
 ///     Ассинхронный клиент чата с LLM
