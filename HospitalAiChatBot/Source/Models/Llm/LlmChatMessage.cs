@@ -1,8 +1,19 @@
+using System.Text.Json.Serialization;
+
 namespace HospitalAiChatBot.Source.Models.Llm;
 
 /// <summary>
 ///     Сообщение чата с LLM
 /// </summary>
-/// <param name="Content">Содержимое сообщения</param>
-/// <param name="Role">Роль автора сообщения</param>
-public record LlmChatMessage(string Content, LlmChatMessageAuthorRole Role = LlmChatMessageAuthorRole.User);
+public class LlmChatMessage(string content, LlmChatMessageAuthorRole role = LlmChatMessageAuthorRole.User)
+{
+    /// <summary>
+    ///     Содержимое сообщения
+    /// </summary>
+    [JsonPropertyName("content")] public string Content = content;
+
+    /// <summary>
+    ///     Роль автора сообщения
+    /// </summary>
+    [JsonPropertyName("role")] public LlmChatMessageAuthorRole Role = role;
+}
