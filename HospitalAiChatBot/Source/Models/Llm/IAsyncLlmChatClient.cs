@@ -5,23 +5,25 @@ namespace HospitalAiChatbot.Source.Models.Llm;
 /// <summary>
 ///     Ассинхронный клиент чата с LLM
 /// </summary>
-public interface IAsyncLlmChatClient<TConfiguration> where TConfiguration : LlmChatClientConfiguration
+public interface IAsyncLlmChatClient<TConfiguration, TMessage>
+    where TConfiguration : LlmChatClientConfiguration
+    where TMessage : LlmChatMessage
 {
     /// <summary>
     ///     Конфигурация клиента чата
     /// </summary>
-    TConfiguration Configuration { get; set; }
+    internal TConfiguration Configuration { get; set; }
 
     /// <summary>
     ///     Общий список сообщений чата
     /// </summary>
-    IEnumerable<LlmChatMessage> ChatMessages { get; }
+    internal IEnumerable<TMessage> ChatMessages { get; }
 
     /// <summary>
     ///     Список первоначальных сообщений чата, которые являются инициализирующими сообщениями чата.
     ///     <remarks>Данные сообщения остаются после <see cref="ResetChat">сброса чата</see></remarks>
     /// </summary>
-    IEnumerable<LlmChatMessage> StartChatMessages { get; }
+    internal IEnumerable<TMessage> StartChatMessages { get; }
 
     /// <summary>
     ///     <para>Очищает весь список сообщений чата, инициализируя новый чат с LLM.</para>
@@ -30,7 +32,7 @@ public interface IAsyncLlmChatClient<TConfiguration> where TConfiguration : LlmC
     ///         <see cref="StartChatMessages">первоначальные сообщения</see>
     ///     </remarks>
     /// </summary>
-    void ResetChat();
+    internal void ResetChat();
 
     /// <summary>
     ///     Получает ответ от LLM  на сообщение клиента.
@@ -39,5 +41,5 @@ public interface IAsyncLlmChatClient<TConfiguration> where TConfiguration : LlmC
     /// <param name="message">Сообщение клиента</param>
     /// <param name="cancellationToken">Токен отмены</param>
     /// <returns>Ответ от LLM</returns>
-    Task<string> GetAnswerToTheMessage(LlmChatMessage message, CancellationToken cancellationToken = default);
+    internal Task<TMessage> GetAnswerToTheMessage(TMessage message, CancellationToken cancellationToken = default);
 }
