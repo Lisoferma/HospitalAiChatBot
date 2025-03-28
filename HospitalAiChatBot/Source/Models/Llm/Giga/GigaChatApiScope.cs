@@ -26,7 +26,7 @@ public static class GigaChatApiScopeExtensions
     /// <summary>
     ///     Преобразование <see cref="GigaChatApiScope" /> в строку, корректную для запроса GigaChat API
     /// </summary>
-    public static string ToString(this GigaChatApiScope scope)
+    public static string ToApiRequestFormatString(this GigaChatApiScope scope)
     {
         return scope switch
         {

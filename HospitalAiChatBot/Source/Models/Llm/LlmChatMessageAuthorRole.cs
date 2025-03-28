@@ -27,7 +27,7 @@ public static class LlmChatMessageAuthorRoleExtensions
     ///     Преобразует <see cref="LlmChatMessageAuthorRole" /> в строку, корректную для тела запроса к API LLM
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static string ToString(this LlmChatMessageAuthorRole role)
+    public static string ToApiRequestFormatString(this LlmChatMessageAuthorRole role)
     {
         return role switch
         {
