@@ -25,3 +25,10 @@ GET {{HospitalAiChatBot_HostAddress}}/api/scrape/callcentercontacts
 GET {{HospitalAiChatBot_HostAddress}}/api/scrape/openinghours
 
 ###
+
+POST {{HospitalAiChatBot_HostAddress}}/api/specialistqa
+Content-Type: application/json
+
+"вопрос"
+
+###
