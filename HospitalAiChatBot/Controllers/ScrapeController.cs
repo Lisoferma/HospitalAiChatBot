@@ -1,21 +1,28 @@
 ﻿using HospitalAiChatBot.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HospitalAiChatBot.Controllers;
-
-[Route("api/[controller]")]
-[ApiController]
-public class ScrapeController : ControllerBase
+namespace HospitalAiChatbot.Controllers
 {
-    [HttpGet("openinghours")]
-    public string GetOpeningHours()
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ScrapeController : ControllerBase
     {
-        return ChitgmaClinicScraper.GetOpeningHours();
-    }
+        private IHospitalInformationProvider _hospitalInformationProvider;
+        public ScrapeController()
+        {
+            _hospitalInformationProvider = new ChitgmaClinicScraper();
+        }
 
-    [HttpGet("callcentercontacts")]
-    public string GetCallCenterContacts()
-    {
-        return ChitgmaClinicScraper.GetCallCenterContacts();
+        [HttpGet("openinghours")]
+        public string GetOpeningHours()
+        {
+            return _hospitalInformationProvider.GetOpeningHours();
+        }
+
+        [HttpGet("callcentercontacts")]
+        public string GetCallCenterContacts()
+        {
+            return _hospitalInformationProvider.GetCallCenterContacts();
+        }
     }
 }
