@@ -1,17 +1,17 @@
 ﻿@HospitalAiChatBot_HostAddress = http://localhost:5045
 
-GET {{OpenAPIServer_HostAddress}}/api/health
+GET {{HospitalAiChatBot_HostAddress}}/api/health
 
 ###
 
-POST {{OpenAPIServer_HostAddress}}/api/qa
+POST {{HospitalAiChatBot_HostAddress}}/api/qa
 Content-Type: application/json
 
 "куестион"
 
 ###
 
-POST {{OpenAPIServer_HostAddress}}/api/feedback
+POST {{HospitalAiChatBot_HostAddress}}/api/feedback
 Content-Type: application/json
 
 "нормально"
