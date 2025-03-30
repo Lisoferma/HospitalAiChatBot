@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Nodes;
 
-namespace OpenAPIServer.Controllers
+namespace HospitalAiChatbot.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
