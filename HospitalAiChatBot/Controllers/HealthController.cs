@@ -7,7 +7,12 @@ namespace HospitalAiChatbot.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
+        /// <summary>
+        /// Проверка доступности сервера.
+        /// </summary>
+        /// <response code="200">Сервер доступен.</response>
         [HttpGet]
+        [ProducesResponseType(200)]
         public IActionResult Get()
         {
             var response = new JsonObject
