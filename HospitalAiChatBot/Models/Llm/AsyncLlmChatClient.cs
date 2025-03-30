@@ -4,7 +4,7 @@ namespace HospitalAiChatBot.Models.Llm;
 
 /// <summary>
 /// Абстрактный клиент чата с LLM.
-///  <remarks>Хранит сообщения списков, общий и первоначальный, в двух<see cref="List{T}"/></remarks>
+///  <remarks>Хранит сообщения списков, общий и первоначальный, в двух списках типа <see cref="List{T}"/></remarks>
 /// </summary>
 public abstract class
     AsyncLlmChatClient<TLlmChatClientConfiguration, TLlmChatMessage> : IAsyncLlmChatClient<TLlmChatClientConfiguration,
@@ -12,10 +12,16 @@ public abstract class
     where TLlmChatClientConfiguration : LlmChatClientConfiguration
     where TLlmChatMessage : LlmChatMessage
 {
-    protected readonly List<TLlmChatMessage> _chatMessages;
+    protected List<TLlmChatMessage> _chatMessages;
     private readonly List<TLlmChatMessage> _startChatMessages;
     public TLlmChatClientConfiguration Configuration { get; set; }
-    public virtual IEnumerable<TLlmChatMessage> ChatMessages => _chatMessages;
+
+    public virtual IEnumerable<TLlmChatMessage> ChatMessages
+    {
+        get => _chatMessages;
+        set => _chatMessages = value.ToList();
+    }
+
     public virtual IEnumerable<TLlmChatMessage> StartChatMessages => _startChatMessages;
 
     /// <summary>Конструктор с конфигурацией и начальными сообщениями чата</summary>
@@ -34,6 +40,6 @@ public abstract class
         _chatMessages.AddRange(_startChatMessages);
     }
 
-    public abstract Task<TLlmChatMessage> SendMessage(TLlmChatMessage message,
-        CancellationToken cancellationToken = default);
+    public abstract Task<TLlmChatMessage> SendMessages(TLlmChatMessage? newMessage = null,
+        bool isLlmAnswerMessageAddingToChatMessages = false, CancellationToken cancellationToken = default);
 }
