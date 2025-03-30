@@ -1,0 +1,630 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HospitalAiChatBot</name>
+    </assembly>
+    <members>
+        <member name="T:HospitalAiChatbot.Controllers.FeedbackController">
+            <summary>
+            Контроллер для отзывов
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.FeedbackController.PostFeedback(System.String)">
+            <summary>
+            Оставить отзыв
+            </summary>
+            <param name="text">Текст отзыва</param>
+            <returns></returns>
+        </member>
+        <member name="T:HospitalAiChatbot.Controllers.HealthController">
+            <summary>
+            Контроллер проверки доступности сервера
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.HealthController.Get">
+            <summary>
+            Проверка доступности сервера.
+            </summary>
+            <response code="200">Сервер доступен.</response>
+        </member>
+        <member name="T:HospitalAiChatbot.Controllers.QaController">
+            <summary>
+            Контроллер для общих вопросов по работе организации, взаимодействующий с нейросетью
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.QaController.GetAnswer(System.String)">
+            <summary>
+            Получение ответа на общий вопрос от нейросети
+            </summary>
+            <param name="question">Вопрос</param>
+            <returns></returns>
+        </member>
+        <member name="T:HospitalAiChatbot.Controllers.ScrapeController">
+            <summary>
+            Контроллер для скрапера
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.ScrapeController.GetOpeningHours">
+            <summary>
+            Возвращает расписание работы организации
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.ScrapeController.GetCallCenterContacts">
+            <summary>
+            Возвращает контакты колл-центра
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:HospitalAiChatbot.Controllers.SpecialistQaController">
+            <summary>
+            Контроллер для работы с обратной связью
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.SpecialistQaController.PostQuestionAsync(HospitalAiChatBot.Models.Question)">
+            <summary>
+            Записывает в БД вопрос, заданный пользователем
+            </summary>
+            <param name="question"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HospitalAiChatbot.Controllers.SpecialistQaController.GetQuestionAsync(System.String)">
+            <summary>
+            Возвращает вопрос, заданный пользователем, по его ID
+            </summary>
+            <param name="questionId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:HospitalAiChatbot.Models.Services.AudioFormatConverter">
+            <summary>
+                Содержит методы для конвертации аудио файлов в другие форматы.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatbot.Models.Services.AudioFormatConverter.ConvertOggStreamToWavBytes(System.IO.Stream,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Конвертирует OGG Stream в WAV byte[] с указанной частотой дискретизации, 16-bit, mono.
+            </summary>
+            <param name="oggStream">Входной поток OGG (должен быть читаемым)</param>
+            <param name="sampleRate">Частота дискретизации выходного WAV аудио.</param>
+            <returns>WAV данные в виде byte[]</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:HospitalAiChatBot.Controllers.VoiceRecognitionController.PostVoice">
+            <summary>
+            Распознавание речи из переданного файла
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.ChitgmaClinicScraper">
+            <summary>
+                Скрапер предоставляющий методы для доступа к информации с сайта
+                <see href="https://clinica.chitgma.ru/">клиники ЧГМА</see>.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.ChitgmaClinicScraper.PRICE_LIST_URL">
+            <summary>
+                URL-адрес на файл с ценами на медицинские услуги.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.ChitgmaClinicScraper.PREPARING_PROCEDURE_URL">
+            <summary>
+                URL-адрес на файл с памятками для пациентов по подготовке к диагностическим исследованиям.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ChitgmaClinicScraper.GetOpeningHours">
+            <inheritdoc />
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ChitgmaClinicScraper.GetCallCenterContacts">
+            <inheritdoc />
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ChitgmaClinicScraper.DownloadPriceListAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ChitgmaClinicScraper.DownloadPreparingProcedureAsync">
+            <inheritdoc />
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:HospitalAiChatBot.Models.ChitgmaClinicScraper.CleanNBSP(System.String)" -->
+        <member name="M:HospitalAiChatBot.Models.IAsyncScenarioDeterminant.DeterminateScenarioAsync(System.String)">
+            <summary>
+                Сопоставляет/Выводит запрошенный сценарий со словесным запросом
+            </summary>
+            <param name="query">Словесный запрос</param>
+            <returns>
+                <c>
+                    <see cref="T:HospitalAiChatBot.Models.ScenarioDeterminant.RequestedScenario">Сценарий</see>
+                </c>
+                - если сценарий был сопоставлен,
+                <c>null</c> - иначе
+            </returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.IHospitalInformationProvider">
+            <summary>
+                Предоставляет методы для доступа к информации о медицинском учреждении.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.IHospitalInformationProvider.GetOpeningHours">
+            <summary>
+                Получить расписание работы в виде форматированной строки.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.IHospitalInformationProvider.GetCallCenterContacts">
+            <summary>
+                Получить номер телефона колл-центра.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.IHospitalInformationProvider.DownloadPriceListAsync">
+            <summary>
+                Скачать файл с ценами на медицинские услуги.
+            </summary>
+            <returns>Файл в виде масива байт.</returns>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.IHospitalInformationProvider.DownloadPreparingProcedureAsync">
+            <summary>
+                Скачать файл с памятками для пациентов по подготовке к диагностическим исследованиям.
+            </summary>
+            <returns>Файл в виде масива байт.</returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.ISpeachRecognizer">
+            <summary>
+                Предоставляет метод для распознавания речи из аудио.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ISpeachRecognizer.RecognizeWav(System.Byte[])">
+            <summary>
+                Распознать речь из WAV-файла.
+            </summary>
+            <param name="audioData">WAV-файл в виде массива байт.</param>
+            <returns>Распознанная речь в виде текста. String.Empty если не удалось распознать.</returns>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ISpeachRecognizer.RecognizeOggStream(System.IO.Stream)">
+            <summary>
+                Распознать речь из OGG Stream.
+            </summary>
+            <param name="oggStream">Входной поток OGG (должен быть читаемым).</param>
+            <returns>Распознанная речь в виде текста. String.Empty если не удалось распознать.</returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.AsyncHttpLlmChatClient`2">
+            <summary>
+            Ассинхронный клиент чата LLM с использованием <see cref="T:System.Net.Http.HttpClient"/>      
+            </summary>
+            <inheritdoc cref="T:HospitalAiChatBot.Models.Llm.AsyncLlmChatClient`2"/>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.AsyncHttpLlmChatClient`2.#ctor(`0,System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            Ассинхронный клиент чата LLM с использованием <see cref="T:System.Net.Http.HttpClient"/>      
+            </summary>
+            <inheritdoc cref="T:HospitalAiChatBot.Models.Llm.AsyncLlmChatClient`2"/>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.AsyncLlmChatClient`2">
+            <summary>
+            Абстрактный клиент чата с LLM.
+             <remarks>Хранит сообщения списков, общий и первоначальный, в двух списках типа <see cref="T:System.Collections.Generic.List`1"/></remarks>
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.AsyncLlmChatClient`2.#ctor(`0,System.Collections.Generic.IEnumerable{`1})">
+            <summary>Конструктор с конфигурацией и начальными сообщениями чата</summary>
+            <param name="configuration">Конфигурация клиента</param>
+            <param name="startChatMessages">Начальные сообщения чата</param>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient">
+            <inheritdoc/>
+            <summary>
+            Ассинхронный клиент чата с GigaChat
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.#ctor(HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration,System.Collections.Generic.IEnumerable{HospitalAiChatBot.Models.Llm.Giga.GigaChatMessage})">
+            <inheritdoc/>
+            <summary>
+            Ассинхронный клиент чата с GigaChat
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.UploadFileAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Загружает файл в хранилище GigaChat
+            <remarks><see cref="!:https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/post-file?ext=text">Документация</see></remarks>
+            </summary>
+            <param name="filePath">URI загружаемого файла</param>
+            <param name="fileMimeType">MIME-тип загружаемого файла</param>
+            <param name="cancellationToken">Токен отмены</param>
+            <returns>Идентификатор файла, который можно использовать при формировании сообщения в поле <see cref="P:HospitalAiChatBot.Models.Llm.Giga.GigaChatMessage.Attachments"/></returns>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.GetUploadedFilesCountAsync(System.Threading.CancellationToken)">
+            <summary>
+            Получает количество загруженных ранее файлов с помощью метода <see cref="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.UploadFileAsync(System.String,System.String,System.Threading.CancellationToken)"/>
+            </summary>
+            <returns>Количество загруженных файлов</returns>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.DeleteUploadedFileAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Удаляет загруженный ранее файл с помощью метода <see cref="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.UploadFileAsync(System.String,System.String,System.Threading.CancellationToken)"/> из хранилища GigaChat
+            </summary>
+            <param name="uploadedFileId">Идентификатор удаляемого файла, полученный при загрузке файла</param>
+            <param name="cancellationToken">Токен отмены</param>
+            <returns>Признак успешного удаления файла</returns>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.SendMessages(HospitalAiChatBot.Models.Llm.Giga.GigaChatMessage,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc />
+            <exception cref="T:System.ObjectDisposedException">Если клиент был уже закрыт</exception>
+            <exception cref="T:System.Net.Http.HttpRequestException">
+                Наиболее ожидаемые ошибки:
+                <para>400 - Некорректный формат запроса.</para>
+                <para>401 - Ошибка авторизации.</para>
+                <para>404 - Указан неверный идентификатор модели.</para>
+                <para>422 - Ошибка валидации параметров запроса. Проверьте названия полей и значения параметров.</para>
+                <para>429 - Слишком много запросов в единицу времени.</para>
+            </exception>
+            <exception cref="T:System.ArgumentNullException">В случае нулевого ответа от API</exception>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.AsyncGigaChatClient.UpdateAccessTokenAsync(System.Threading.CancellationToken)">
+            <summary>
+                Обновляет токен доступа к API.
+                <remarks>
+                    <para>Токен доступа к API необходим для работы данного клиента.</para>
+                    Токен доступа действителен в течение 30 минут
+                </remarks>
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Если клиент был уже закрыт</exception>
+            <exception cref="T:System.Net.Http.HttpRequestException">Наиболее ожидаемые ошибки: 400, 401</exception>
+            <exception cref="T:System.ArgumentNullException">В случае нулевого ответа от API</exception>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel">
+            <summary>
+                <para>Модели GigaChat.</para>
+                <see cref="!:https://developers.sber.ru/docs/ru/gigachat/models">Подробнее о моделях</see>
+                <remarks>
+                    Описание моделей взято с
+                    <see cref="!:https://developers.sber.ru/docs/ru/gigachat/models">сайта моделей GigaChat</see>
+                </remarks>
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel.GigaChat">
+            <summary>
+                Легкая модель для простых задач, требующих максимальной скорости работы
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel.GigaChatPro">
+            <summary>
+                Продвинутая модель для сложных задач, требующих креативности и лучшего следования инструкциям
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel.GigaChatMax">
+            <summary>
+                Продвинутая модель для сложных задач, требующих высокого уровня креативности и качества работы
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel.GigaChat2">
+            <summary>
+                Быстрая и легкая модель для простых повседневных задач
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel.GigaChat2Pro">
+            <summary>
+                Усовершенствованная модель для ресурсоемких задач, обеспечивающая максимальную эффективность в обработке данных,
+                креативности и соблюдении инструкций.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel.GigaChat2Max">
+            <summary>
+                Мощная модель для самых сложных и масштабных задач, требующих высочайшего уровня креативности и качества исполнения
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.GigaChatModelExtensions.ToApiModelName(HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel)">
+            <summary>
+                Преобразует значение модели в название модели, которое можно использовать в запросах к API GigaChat.
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope">
+            <summary>
+                Версия API GigaChat
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope.Personal">
+            <summary>
+                Доступ для физических лиц.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope.BusinessToBusiness">
+            <summary>
+                Доступ для ИП и юридических лиц по платным пакетам.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope.Corporate">
+            <summary>
+                Доступ для ИП и юридических лиц по схеме pay-as-you-go.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScopeExtensions.ToApiScopeString(HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope)">
+            <summary>
+                Преобразование <see cref="T:HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope" /> в строку, корректную для запроса GigaChat API
+            </summary>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration">
+            <inheritdoc />
+            <summary>
+                Конфигурация чат-клиента GigaChat LLM
+            </summary>
+            <param name="ApiScope">Версия API чат-клиента</param>
+            <param name="ClientId">API ID клиента</param>
+            <param name="ClientSecret">API secret клиента</param>
+            <param name="Model">Используемая в чате модель</param>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration.#ctor(System.String,System.String,HospitalAiChatBot.Models.Llm.Giga.GigaChatApiScope,HospitalAiChatBot.Models.Llm.Giga.GigaChatApiModel,System.Single,System.Single,System.Single,System.Int32,System.Boolean)">
+            <inheritdoc />
+            <summary>
+                Конфигурация чат-клиента GigaChat LLM
+            </summary>
+            <param name="ApiScope">Версия API чат-клиента</param>
+            <param name="ClientId">API ID клиента</param>
+            <param name="ClientSecret">API secret клиента</param>
+            <param name="Model">Используемая в чате модель</param>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration.ClientId">
+            <summary>API ID клиента</summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration.ClientSecret">
+            <summary>API secret клиента</summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration.ApiScope">
+            <summary>Версия API чат-клиента</summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.Giga.GigaChatClientConfiguration.Model">
+            <summary>Используемая в чате модель</summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.Giga.GigaChatMessage.Attachments">
+            <summary>
+                <para>Массив идентификаторов файлов, которые нужно использовать при генерации.</para>
+                <see cref="!:https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/post-chat">
+                    Подробнее о работе с файлами с GigaChat API
+                </see>
+            </summary>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2">
+            <summary>
+                Ассинхронный клиент чата с LLM
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.Configuration">
+            <summary>
+                Конфигурация клиента чата
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.ChatMessages">
+            <summary>
+                Общий список сообщений чата
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.StartChatMessages">
+            <summary>
+                Список первоначальных сообщений чата, которые являются инициализирующими сообщениями чата.
+                <remarks>Данные сообщения остаются после <see cref="M:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.ResetChat">сброса чата</see></remarks>
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.ResetChat">
+            <summary>
+                <para>Очищает весь список сообщений чата, инициализируя новый чат с LLM.</para>
+                <remarks>
+                    При сбросе в списке сообщений остаются
+                    <see cref="P:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.StartChatMessages">первоначальные сообщения</see>
+                </remarks>
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.SendMessages(`1,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+                Посылает сообщения чата LLM и получает ответ от LLM на сообщения.
+            </summary>
+            <param name="newMessage">Новое сообщение чата</param>
+            <param name="isLlmAnswerMessageAddingToChatMessages">Определяет, будет ли добавлено ответное сообщение LLM в <see cref="P:HospitalAiChatBot.Models.Llm.IAsyncLlmChatClient`2.ChatMessages"/></param>
+            <param name="cancellationToken">Токен отмены</param>
+            <returns>Ответ от LLM</returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration">
+            <summary>
+                Общая конфигурация чта-клиента с LLM
+            </summary>
+            <param name="Temperature">
+                <para>Температура выборки.</para>
+                Чем выше значение, тем более случайным будет ответ модели
+                <remarks>Значение по умолчанию: 0.7</remarks>
+            </param>
+            <param name="TopP">
+                <para>Альтернатива <see cref="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.Temperature">температуре выборки.</see></para>
+                Задает вероятностную массу токенов, которые должна учитывать модель.
+                <remarks>Значение по умолчанию: 0.7</remarks>
+            </param>
+            <param name="RepetitionPenalty">
+                <para>
+                    Величина, характеризующая повторение слов в ответе от LLM
+                </para>
+                Чем больше значение данной величины, тем больше модель в ответе будет стараться не повторять слова.
+                <remarks>Нейтральное значение - 1.0</remarks>
+            </param>
+            <param name="MaxTokens">
+                Максимальное количество токенов в ответе от LLM.
+                <remarks>Значение по умолчанию: 2048</remarks>
+            </param>
+            <param name="IsLlmAnswerStreaming">
+                Определяет, будет ли ответ от LLM в виде потока частей сообщения или в виде одного
+                сообщения.
+                <remarks>Значение по умолчанию: false</remarks>
+            </param>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.#ctor(System.Single,System.Single,System.Single,System.Int32,System.Boolean)">
+            <summary>
+                Общая конфигурация чта-клиента с LLM
+            </summary>
+            <param name="Temperature">
+                <para>Температура выборки.</para>
+                Чем выше значение, тем более случайным будет ответ модели
+                <remarks>Значение по умолчанию: 0.7</remarks>
+            </param>
+            <param name="TopP">
+                <para>Альтернатива <see cref="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.Temperature">температуре выборки.</see></para>
+                Задает вероятностную массу токенов, которые должна учитывать модель.
+                <remarks>Значение по умолчанию: 0.7</remarks>
+            </param>
+            <param name="RepetitionPenalty">
+                <para>
+                    Величина, характеризующая повторение слов в ответе от LLM
+                </para>
+                Чем больше значение данной величины, тем больше модель в ответе будет стараться не повторять слова.
+                <remarks>Нейтральное значение - 1.0</remarks>
+            </param>
+            <param name="MaxTokens">
+                Максимальное количество токенов в ответе от LLM.
+                <remarks>Значение по умолчанию: 2048</remarks>
+            </param>
+            <param name="IsLlmAnswerStreaming">
+                Определяет, будет ли ответ от LLM в виде потока частей сообщения или в виде одного
+                сообщения.
+                <remarks>Значение по умолчанию: false</remarks>
+            </param>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.Temperature">
+            <summary>
+                <para>Температура выборки.</para>
+                Чем выше значение, тем более случайным будет ответ модели
+                <remarks>Значение по умолчанию: 0.7</remarks>
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.TopP">
+            <summary>
+                <para>Альтернатива <see cref="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.Temperature">температуре выборки.</see></para>
+                Задает вероятностную массу токенов, которые должна учитывать модель.
+                <remarks>Значение по умолчанию: 0.7</remarks>
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.RepetitionPenalty">
+            <summary>
+                <para>
+                    Величина, характеризующая повторение слов в ответе от LLM
+                </para>
+                Чем больше значение данной величины, тем больше модель в ответе будет стараться не повторять слова.
+                <remarks>Нейтральное значение - 1.0</remarks>
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.MaxTokens">
+            <summary>
+                Максимальное количество токенов в ответе от LLM.
+                <remarks>Значение по умолчанию: 2048</remarks>
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatClientConfiguration.IsLlmAnswerStreaming">
+            <summary>
+                Определяет, будет ли ответ от LLM в виде потока частей сообщения или в виде одного
+                сообщения.
+                <remarks>Значение по умолчанию: false</remarks>
+            </summary>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.LlmChatMessage">
+            <summary>
+                Сообщение чата с LLM
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.LlmChatMessage.#ctor(System.String,HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole)">
+            <summary>
+                Сообщение чата с LLM
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.LlmChatMessage.Role">
+            <summary>
+                Роль автора сообщения
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatMessage.LlmChatMessageAuthorRoleApiString">
+            <summary>
+                Роль автора сообщения в виде строки для API
+            </summary>
+        </member>
+        <member name="P:HospitalAiChatBot.Models.Llm.LlmChatMessage.Content">
+            <summary>
+                Содержимое сообщения
+            </summary>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole">
+            <summary>
+                Роль автора сообщения в чате с LLM
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole.System">
+            <summary>
+                Система. С помощью данной роли задаются роль, цели и иной контекст модели
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole.User">
+            <summary>
+                Пользователь. С помощью данной роли передаются сообщения пользователя
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole.Assistant">
+            <summary>
+                Помощник. С помощью данной роли передаются ответы модели
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRoleExtensions.ToApiRequestFormatString(HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole)">
+            <summary>
+                Преобразует <see cref="T:HospitalAiChatBot.Models.Llm.LlmChatMessageAuthorRole" /> в строку, корректную для тела запроса к API LLM
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.ScenarioDeterminant.IScenarioDeterminant.DeterminateScenario(System.String)">
+            <summary>
+                Сопоставляет/Выводит запрошенный сценарий со словесным запросом
+            </summary>
+            <param name="query">Словесный запрос</param>
+            <returns>
+                <c>
+                    <see cref="T:HospitalAiChatBot.Models.ScenarioDeterminant.RequestedScenario">Сценарий</see>
+                </c>
+                - если сценарий был сопоставлен,
+                <c>null</c> - иначе
+            </returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.ScenarioDeterminant.RequestedScenario">
+            <summary>
+                Запрошенный сценарии пользователя
+            </summary>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.Services.FileDownloader">
+            <summary>
+                Содержит метод для скачивания файлов по URL.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.Services.FileDownloader.DownloadFileAsync(System.String)">
+            <summary>
+                Скачать файл по URL-адресу.
+            </summary>
+            <param name="url">URL-адрес на файл который нужно скачать.</param>
+            <returns>Скачанный файл в виде массива байт.</returns>
+        </member>
+        <member name="T:HospitalAiChatBot.Models.VoskSpeechRecognizer">
+            <summary>
+                Содержит медоты для распознавания речи из аудио с помощью нейронной сети.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.VoskSpeechRecognizer._recognizer">
+            <summary>
+                Модель для распознавания речи из аудио.
+            </summary>
+        </member>
+        <member name="F:HospitalAiChatBot.Models.VoskSpeechRecognizer.SampleRate">
+            <summary>
+                Частота дискретизации у аудио, которое будет распознаваться.
+            </summary>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.VoskSpeechRecognizer.#ctor(System.String,System.Single)">
+            <summary>
+                Инициализировать модель для распознавания речи из аудио.
+            </summary>
+            <param name="modelPath">Путь к папке с файлами модели нейросети.</param>
+            <param name="sampleRate">Частота дискретизации аудио, которое будет распознаваться.</param>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+        </member>
+        <member name="M:HospitalAiChatBot.Models.VoskSpeechRecognizer.RecognizeWav(System.Byte[])">
+            <inheritdoc />
+        </member>
+        <member name="M:HospitalAiChatBot.Models.VoskSpeechRecognizer.RecognizeOggStream(System.IO.Stream)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "AI Chatbot Clinic Chitgma API", Version = "v1" });
+    c.IncludeXmlComments("HospitalAiChatBot.xml");
 });
 
 var app = builder.Build();
@@ -20,8 +21,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {

@@ -1,5 +1,6 @@
 ﻿using HospitalAiChatBot.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace HospitalAiChatBot.Controllers
 {
@@ -29,7 +30,12 @@ namespace HospitalAiChatBot.Controllers
             _recognizer = new VoskSpeechRecognizer(modelPath: _modelPath);
         }
 
-
+        /// <summary>
+        /// Распознавание речи из переданного файла
+        /// </summary>
+        /// <returns></returns>
+        [ProducesResponseType<string>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPost]
         public IActionResult PostVoice()
         {

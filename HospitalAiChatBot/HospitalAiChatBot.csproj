@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>02b903df-1f91-4eaf-aee3-a58a926a2cae</UserSecretsId>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DocumentationFile>HospitalAiChatBot.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -3,6 +3,9 @@ using System.Text.Json.Nodes;
 
 namespace HospitalAiChatbot.Controllers
 {
+    /// <summary>
+    /// Контроллер проверки доступности сервера
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class HealthController : ControllerBase
