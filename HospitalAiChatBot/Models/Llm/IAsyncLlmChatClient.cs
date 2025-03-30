@@ -10,18 +10,18 @@ public interface IAsyncLlmChatClient<TConfiguration, TMessage>
     /// <summary>
     ///     Конфигурация клиента чата
     /// </summary>
-    internal TConfiguration Configuration { get; set; }
+    TConfiguration Configuration { get; set; }
 
     /// <summary>
     ///     Общий список сообщений чата
     /// </summary>
-    internal IEnumerable<TMessage> ChatMessages { get; }
+    IEnumerable<TMessage> ChatMessages { get; }
 
     /// <summary>
     ///     Список первоначальных сообщений чата, которые являются инициализирующими сообщениями чата.
     ///     <remarks>Данные сообщения остаются после <see cref="ResetChat">сброса чата</see></remarks>
     /// </summary>
-    internal IEnumerable<TMessage> StartChatMessages { get; }
+    IEnumerable<TMessage> StartChatMessages { get; }
 
     /// <summary>
     ///     <para>Очищает весь список сообщений чата, инициализируя новый чат с LLM.</para>
@@ -30,14 +30,15 @@ public interface IAsyncLlmChatClient<TConfiguration, TMessage>
     ///         <see cref="StartChatMessages">первоначальные сообщения</see>
     ///     </remarks>
     /// </summary>
-    internal void ResetChat();
+    void ResetChat();
 
     /// <summary>
-    ///     Посылает сообщение в чат и получает ответ от LLM  на сообщение.
-    ///     <remarks>Ответ будет добавлен в конец списка сообщений чата.</remarks>
+    ///     Посылает сообщения чата LLM и получает ответ от LLM на сообщения.
     /// </summary>
-    /// <param name="message">Сообщение клиента</param>
+    /// <param name="newMessage">Новое сообщение чата</param>
+    /// <param name="isLlmAnswerMessageAddingToChatMessages">Определяет, будет ли добавлено ответное сообщение LLM в <see cref="ChatMessages"/></param>
     /// <param name="cancellationToken">Токен отмены</param>
     /// <returns>Ответ от LLM</returns>
-    internal Task<TMessage> SendMessage(TMessage message, CancellationToken cancellationToken = default);
+    Task<TMessage> SendMessages(TMessage? newMessage = null, bool isLlmAnswerMessageAddingToChatMessages = false,
+        CancellationToken cancellationToken = default);
 }
