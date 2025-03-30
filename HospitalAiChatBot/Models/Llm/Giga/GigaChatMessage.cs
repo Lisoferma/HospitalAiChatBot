@@ -13,5 +13,6 @@ public class GigaChatMessage(string content, LlmChatMessageAuthorRole role, stri
     ///     </see>
     /// </summary>
     [JsonPropertyName("attachments")]
-    public string[] Attachments { get; init; } = attachments ?? [];
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string[]? Attachments { get; init; } = attachments;
 }
