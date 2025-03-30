@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace OpenAPIServer.Controllers
+namespace HospitalAiChatbot.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
