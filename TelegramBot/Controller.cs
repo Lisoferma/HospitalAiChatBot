@@ -4,6 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 class Controller
 {
@@ -34,6 +35,7 @@ class Controller
         _strToScenario.Add("Записаться к специалисту", RequestedScenario.MakeAppointment);
         _strToScenario.Add("Обратная связь", RequestedScenario.Feedback);
         _strToScenario.Add("Связаться с оператором", RequestedScenario.CommunicationWithOperator);
+        _strToScenario.Add("Отложенный звонок", RequestedScenario.DefferedAnswer);
 
         _httpClient = new HttpClient();
 
@@ -190,6 +192,35 @@ class Controller
         }
     }
 
+    async Task OnDeferredAnswer(Message msg)
+    {
+        if (_idToUserState[msg.From.Id].State == States.ChoosingScenario)
+        {
+            await _bot.SendMessage(msg.Chat, "Вы можете передать свой номер для отложенного звонка. " +
+                "Нажмите для этого на кнопку",
+                replyMarkup: KeyboardButton.WithRequestContact("Поделиться номером телефона"));
+            _idToUserState[msg.From.Id].State = States.InLongScenario;
+        }
+
+        else
+        {
+            if (msg.Contact == null)
+            {
+                await _bot.SendMessage(msg.Chat, "Ваш номер телефона не был передан");
+                await OnStartMessage(msg);
+                return;
+            }
+
+            string contactStr = $"{msg.Contact.FirstName} {msg.Contact.PhoneNumber}";
+
+            await _bot.SendMessage(_specialistChatId, "Отложенный звонок");
+            await _bot.ForwardMessage(_specialistChatId, msg.Chat.Id, msg.Id);
+            await _bot.SendMessage(msg.Chat, "Ваш номер телефона был передан специалисту");
+
+            await OnStartMessage(msg);
+        }
+    }
+
     /// <summary>
     /// Выполняет заданный сценарий
     /// </summary>
@@ -225,6 +256,9 @@ class Controller
                     Console.WriteLine("Ошибка выполнения HTTP запроса: " + ex);
                 }
 
+                break;
+            case RequestedScenario.DefferedAnswer:
+                await OnDeferredAnswer(msg);
                 break;
 
             case RequestedScenario.Feedback:
@@ -296,7 +330,7 @@ class Controller
             await OnStartMessage(msg);
         }
 
-        else if (msg.Text.StartsWith("/a ") && msg.Chat.Id == _specialistChatId)
+        else if (msg.Text?.StartsWith("/a ") ?? false && msg.Chat.Id == _specialistChatId)
         {
             await OnFeedbackAnswer(msg);
         }
