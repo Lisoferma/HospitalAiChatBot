@@ -1,4 +1,6 @@
+using HospitalAiChatBot.Models;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Telegram.Bot;
 

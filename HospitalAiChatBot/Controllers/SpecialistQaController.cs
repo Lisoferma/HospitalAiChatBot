@@ -25,18 +25,22 @@ namespace HospitalAiChatbot.Controllers
         [HttpPost]
         public async Task<string> PostQuestionAsync([FromBody] Question question)
         {
-            question.Id = ObjectId.GenerateNewId().ToString();
+            string questionId = await _repository.AddAsync(question);
 
-            await _repository.AddAsync(question);
+            return questionId;
+        }
 
-            IEnumerable<Question> result = await _repository.GetAllAsync();
-            List<Question> questions = result.ToList();
+        [HttpGet]
+        public async Task<IActionResult> GetQuestionAsync(string questionId)
+        {
+            Question? question = await _repository.GetByIdAsync(questionId);
 
-            Console.WriteLine("----MongoDB----");
-            foreach (var item in questions)
-                Console.WriteLine($"Текст: {item.Text}, площадка: {item.FromClientType}, id: {item.Id}");
+            if (question == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
 
-            return "Благодарим вас за вопрос!";
+            return Ok(question);
         }
     }
 }

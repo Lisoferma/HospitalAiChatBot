@@ -11,8 +11,6 @@ public enum ClientType
 
 public class Question
 {
-    public string? Id { get; set; }
-
     public required ClientType FromClientType { get; set; }
 
     public required string Contacts { get; set; }

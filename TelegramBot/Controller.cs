@@ -1,5 +1,9 @@
 ﻿using HospitalAiChatBot.Models;
 using HospitalAiChatBot.Models.ScenarioDeterminant;
+using Microsoft.AspNetCore.Http;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -15,8 +19,6 @@ class Controller
     private HttpClient _httpClient;
     private Dictionary<String, RequestedScenario> _strToScenario;
     private const string _webApiUrl = "http://localhost:5000";
-    private Dictionary<int, MessageLink> _intrnlMsgIdToMsgLink;
-    private int _intrnlMsgId;
 
     public Controller(TelegramBotClient aBot, Dictionary<long, UserState> idToUserState, long specialistChatId)
     {
@@ -40,10 +42,6 @@ class Controller
 
         _httpClient = new HttpClient();
 
-        _intrnlMsgId = 0;
-
-        _intrnlMsgIdToMsgLink = new Dictionary<int, MessageLink>();
-
         _specialistChatId = new ChatId(specialistChatId);
     }
 
@@ -65,6 +63,7 @@ class Controller
             UserState state = _idToUserState[userId];
             state.State = States.ChoosingScenario;
             state.AtError = false;
+            state.ImportantMessages = null;
             startMsg = "Что-нибудь еще?";
         }
 
@@ -196,21 +195,41 @@ class Controller
 
         else
         {
-            string textToSpecialist = scenario switch
+            MessageLink msgLink = new MessageLink(msg.Chat.Id, msg.Id);
+
+            HttpClient httpClient = new HttpClient();
+
+            if (_idToUserState[msg.From.Id].ImportantMessages == null)
             {
-                RequestedScenario.GetDoctorWorkTime => $"Время работы. ID обращения = {_intrnlMsgId}",
-                // RequestedScenario.Feedback
-                _ => $"Обратная связь. ID обращения = {_intrnlMsgId}"
+                _idToUserState[msg.From.Id].ImportantMessages = [msg];
+            }
+
+            Message userMsg = _idToUserState[msg.From.Id].ImportantMessages.First();
+
+            Question question = new Question()
+            {
+                Contacts = JsonSerializer.Serialize(msgLink),
+                Text = userMsg.Text,
+                FromClientType = ClientType.TelegramBot
             };
 
-            _intrnlMsgIdToMsgLink[_intrnlMsgId] = new MessageLink(msg.Chat.Id, msg.Id);
+            var response = await httpClient.PostAsync(_webApiUrl + "/api/specialistqa", JsonContent.Create(question));
 
-            _intrnlMsgId++;
+            response.EnsureSuccessStatusCode();
+
+            string internalMsgId = await response.Content.ReadAsStringAsync();
+
+            string textToSpecialist = scenario switch
+            {
+                RequestedScenario.GetDoctorWorkTime => $"Время работы. ID обращения = {internalMsgId}",
+                // RequestedScenario.Feedback
+                _ => $"Обратная связь. ID обращения = {internalMsgId}"
+            };
 
             await _bot.SendMessage(_specialistChatId, textToSpecialist);
 
-            await _bot.ForwardMessage(_specialistChatId, msg.Chat, msg.Id);
-            await _bot.SendMessage(msg.Chat, "Ваше сообщение передано специалисту");
+            await _bot.ForwardMessage(_specialistChatId, userMsg.Chat, userMsg.Id);
+            await _bot.SendMessage(userMsg.Chat, "Ваше сообщение передано специалисту");
 
             await OnStartMessage(msg);
         }
@@ -223,7 +242,7 @@ class Controller
     /// <returns></returns>
     async Task OnFeedbackOrGetDoctorWorkingTimeAnswer(Message msg)
     {
-        string regexAsStr = @"/a\s+(\d+)\s+((?:.|\n)+)";
+        string regexAsStr = @"/a\s+(\S+)\s+((?:.|\n)+)";
         Regex regex = new Regex(regexAsStr, RegexOptions.Compiled);
 
         Match match = regex.Match(msg.Text);
@@ -236,16 +255,22 @@ class Controller
 
         else
         {
-            int userMessageId = int.Parse(match.Groups[1].Value);
+            HttpClient httpClient = new HttpClient();
+
+            string userMessageId = match.Groups[1].Value;
             string textToUser = match.Groups[2].Value;
 
-            if (!_intrnlMsgIdToMsgLink.ContainsKey(userMessageId))
+            var resp = await httpClient.GetAsync(_webApiUrl + $"/api/specialistqa/?questionId={userMessageId}");
+
+            if (resp.StatusCode == HttpStatusCode.NotFound)
             {
                 await _bot.SendMessage(msg.Chat, "ID сообщения пользователя не был найден в словаре");
                 return;
             }
 
-            MessageLink messageLink = _intrnlMsgIdToMsgLink[userMessageId];
+            Question question = await resp.Content.ReadFromJsonAsync<Question>();
+
+            MessageLink messageLink = JsonSerializer.Deserialize<MessageLink>(question.Contacts);
 
             await _bot.SendMessage(messageLink.ChatId, textToUser, replyParameters: messageLink.MsgId);
         }
@@ -337,7 +362,17 @@ class Controller
 
             case RequestedScenario.Feedback:
             case RequestedScenario.GetDoctorWorkTime:
-                await OnFeedbackOrGetDoctorWorkingTime(msg);
+                try
+                {
+                    await OnFeedbackOrGetDoctorWorkingTime(msg);
+                }
+                catch (HttpRequestException ex)
+                {
+                    await HandleBotError(msg);
+
+                    Console.WriteLine("Ошибка выполнения HTTP запроса: " + ex);
+                }
+
                 break;
 
             case RequestedScenario _:
@@ -450,7 +485,7 @@ class UserState
     /// <summary>
     /// Сообщения пользователя, которые требуется хранить
     /// </summary>
-    public List<string>? ImportantMessages { get; }
+    public List<Message>? ImportantMessages { get; set; }
     /// <summary>
     /// Возникла ли ошибка
     /// </summary>
