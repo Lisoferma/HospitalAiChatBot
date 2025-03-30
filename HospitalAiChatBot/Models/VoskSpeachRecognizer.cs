@@ -1,4 +1,5 @@
 ﻿using HospitalAiChatbot.Models.Services;
+using System.Text.Json;
 using Vosk;
 
 namespace HospitalAiChatBot.Models;
@@ -36,30 +37,31 @@ public class VoskSpeechRecognizer : ISpeachRecognizer
     }
 
 
-    /// <summary>
-    ///     Распознать речь из WAV-файла
-    ///     c частотой дискретизации <see cref="SampleRate" />, моно, 16-bit PCM.
-    /// </summary>
-    /// <param name="audioData">WAV-файл в виде массива байт.</param>
-    /// <returns>Распознанная речь в виде текста.</returns>
-    public string Recognize(byte[] audioData)
+    /// <inheritdoc />
+    public string RecognizeWav(byte[] audioData)
     {
-        if (_recognizer.AcceptWaveform(audioData, audioData.Length))
-            return _recognizer.Result();
+        string jsonResult;
 
-        return _recognizer.PartialResult();
+        if (_recognizer.AcceptWaveform(audioData, audioData.Length))
+        {
+            jsonResult = _recognizer.Result();
+        }           
+        else
+        {
+            jsonResult = _recognizer.PartialResult();
+        }
+
+        var jsonDoc = JsonDocument.Parse(jsonResult);
+        string recognizedText = jsonDoc.RootElement.GetProperty("text").GetString() ?? String.Empty;
+
+        return recognizedText;
     }
 
 
-    /// <summary>
-    ///     Распознать речь из OGG Stream
-    ///     c частотой дискретизации <see cref = "SampleRate" />, моно, 16-bit PCM.
-    /// </summary>
-    /// <param name="oggStream">Входной поток OGG (должен быть читаемым).</param>
-    /// <returns>Распознанная речь в виде текста.</returns>
+    /// <inheritdoc />
     public string RecognizeOggStream(Stream oggStream)
     {
         byte[] audioData = AudioFormatConverter.ConvertOggStreamToWavBytes(oggStream, (int)SampleRate);
-        return Recognize(audioData);
+        return RecognizeWav(audioData);
     }
 }

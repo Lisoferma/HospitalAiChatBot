@@ -21,15 +21,11 @@ public static class AudioFormatConverter
         int bits = 16,
         int channels = 1)
     {
-        if (oggStream == null || !oggStream.CanRead)
-            throw new ArgumentException("Некорректный входной поток");
-
-        using MemoryStream wavStream = new();
-        using VorbisWaveReader oggReader = new(oggStream);
-
-        using WaveFormatConversionStream resampler = new(
-            new WaveFormat(sampleRate, bits, channels),
-            oggReader);
+        using var wavStream = new MemoryStream();
+        using var oggReader = new VorbisWaveReader(oggStream);
+        using var resampler = new MediaFoundationResampler(
+            oggReader,
+            new WaveFormat(sampleRate, bits, channels));
 
         WaveFileWriter.WriteWavFileToStream(wavStream, resampler);
 
