@@ -1,4 +1,7 @@
-﻿namespace HospitalAiChatBot.Models;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace HospitalAiChatBot.Models;
 
 public enum ClientType
 {
@@ -8,7 +11,9 @@ public enum ClientType
 
 public class Question
 {
-    public ClientType FromClientType { get; set; }
+    public string? Id { get; set; }
+
+    public required ClientType FromClientType { get; set; }
 
     public required string Contacts { get; set; }
 
