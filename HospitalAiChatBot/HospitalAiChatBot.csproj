@@ -22,5 +22,11 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Vosk" Version="0.3.38" />
   </ItemGroup>
+  
+	<ItemGroup>
+	  <None Update="HospitalAiChatBot.xml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 
 </Project>
