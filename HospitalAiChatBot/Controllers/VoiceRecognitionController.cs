@@ -7,23 +7,36 @@ namespace HospitalAiChatBot.Controllers
     [ApiController]
     public class VoiceRecognitionController : ControllerBase
     {
-        const string MODEL_PATH = @"Resources\vosk-model-small-ru-0.22";
+        private readonly IConfigurationRoot _config;
+        private readonly string? _modelPath;
         private readonly ISpeachRecognizer _recognizer;
 
 
         public VoiceRecognitionController()
         {
-            _recognizer = new VoskSpeechRecognizer(modelPath: MODEL_PATH);
+            _config = new ConfigurationBuilder()
+                .AddUserSecrets<VoiceRecognitionController>()
+                .Build();
+
+            _modelPath = _config["VoiceRecognition:ModelPath"];
+
+            if (String.IsNullOrEmpty(_modelPath))
+                throw new Exception(@"Для запуска распознавания речи, в secrets.json
+                    необходимо задать ключ VoiceRecognition:ModelPath,
+                    который содержит путь к модели нейросети.");
+
+            Console.WriteLine(_modelPath);
+            _recognizer = new VoskSpeechRecognizer(modelPath: _modelPath);
         }
 
 
-        [HttpPost("ogg")]
+        [HttpPost]
         public IActionResult PostVoice()
         {
             try
             {
                 using Stream audioStream = Request.Body;
-                if (audioStream == null || audioStream.Length == 0)
+                if (audioStream.CanSeek && audioStream.Position == audioStream.Length)
                     return BadRequest("Empty stream.");
 
                 string recognizedText = _recognizer.RecognizeOggStream(audioStream);
@@ -32,7 +45,7 @@ namespace HospitalAiChatBot.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error: {ex.Message}");
+                return StatusCode(500, $"Error: {ex.Message}, StackTrace: {ex.StackTrace}");
             }
         }
     }

@@ -36,3 +36,6 @@ Content-Type: application/json
 }
 
 ###
+
+POST {{HospitalAiChatBot_HostAddress}}/api/voicerecognition
+Content-Type: application/octet-stream
