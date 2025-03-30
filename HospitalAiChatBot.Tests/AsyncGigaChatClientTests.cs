@@ -19,6 +19,12 @@ public class AsyncGigaChatClientTests
 
     private static readonly AsyncGigaChatClient Client = new(Configuration);
 
+    [SetUp]
+    public async Task SetUp()
+    {
+        await Client.UpdateAccessTokenAsync();
+    }
+
     [Test]
     [Ignore("Потенциальное отсутствие ключей")]
     public async Task TestAuthTokenUpdateWithEnvironmentVariables()
@@ -45,8 +51,17 @@ public class AsyncGigaChatClientTests
         for (var i = 0; i < len; i++)
             messages[i] = new GigaChatMessage(messagesContent[i], LlmChatMessageAuthorRole.User);
         Client.ChatMessages = messages;
-        await Client.UpdateAccessTokenAsync();
         var answer = await Client.SendMessages();
         Console.WriteLine(answer);
+    }
+
+    [TestCase("/home/nemo/docs/test_image.jpg", "image/jpeg", ExpectedResult = true)]
+    [TestCase("/home/nemo/docs/test.txt", "text/plain", ExpectedResult = true)]
+    [TestCase("/home/nemo/docs/test.pdf", "application/pdf", ExpectedResult = true)]
+    public async Task<bool> TestFileUploadingAndCountingAndDeleting(string filePath, string fileMimeType)
+    {
+        var fileId = await Client.UploadFileAsync(filePath, fileMimeType);
+        await Client.GetUploadedFilesCountAsync();
+        return await Client.DeleteUploadedFileAsync(fileId);
     }
 }
