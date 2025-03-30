@@ -1,4 +1,5 @@
 ﻿using HospitalAiChatBot.Models.ScenarioDeterminant;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -6,13 +7,16 @@ using Telegram.Bot.Types.Enums;
 
 class Controller
 {
+    private ChatId _specialistChatId;
     private TelegramBotClient _bot;
     private Dictionary<long, UserState> _idToUserState;
     private HttpClient _httpClient;
     private Dictionary<String, RequestedScenario> _strToScenario;
     private const string _webApiUrl = "http://localhost:5000";
+    private Dictionary<int, MessageLink> _intrnlMsgIdToMsgLink;
+    private int _intrnlMsgId;
 
-    public Controller(TelegramBotClient aBot, Dictionary<long, UserState> idToUserState)
+    public Controller(TelegramBotClient aBot, Dictionary<long, UserState> idToUserState, long specialistChatId)
     {
         _bot = aBot;
 
@@ -32,6 +36,12 @@ class Controller
         _strToScenario.Add("Связаться с оператором", RequestedScenario.CommunicationWithOperator);
 
         _httpClient = new HttpClient();
+
+        _intrnlMsgId = 0;
+
+        _intrnlMsgIdToMsgLink = new Dictionary<int, MessageLink>();
+
+        _specialistChatId = new ChatId(specialistChatId);
     }
 
 
@@ -91,6 +101,9 @@ class Controller
         contactsResp = await _httpClient.GetAsync(_webApiUrl + "/api/scrape/callcentercontacts");
         workTimeResp = await _httpClient.GetAsync(_webApiUrl + "/api/scrape/openinghours");
 
+        contactsResp.EnsureSuccessStatusCode();
+        workTimeResp.EnsureSuccessStatusCode();
+
         string contacts = await contactsResp.Content.ReadAsStringAsync();
         string workTime = await workTimeResp.Content.ReadAsStringAsync();
 
@@ -103,6 +116,78 @@ class Controller
             """);
 
         await OnStartMessage(msg);
+    }
+
+    async Task OnCommunicationWithOperator(Message msg)
+    {
+        HttpResponseMessage contactsResp;
+
+        contactsResp = await _httpClient.GetAsync(_webApiUrl + "/api/scrape/callcentercontacts");
+
+        contactsResp.EnsureSuccessStatusCode();
+
+        string contacts = await contactsResp.Content.ReadAsStringAsync();
+
+        await _bot.SendMessage(msg.Chat, $"Контакты колл-центра:\n{contacts}");
+
+        await OnStartMessage(msg);
+    }
+
+    async Task OnFeedback(Message msg)
+    {
+        if (_idToUserState[msg.From.Id].State == States.ChoosingScenario)
+        {
+            await _bot.SendMessage(msg.Chat, "Вы можете оставить отзыв или предложение, а также написать вопрос для специалиста");
+            _idToUserState[msg.From.Id].State = States.InLongScenario;
+        }
+
+        else
+        {
+            _intrnlMsgIdToMsgLink[_intrnlMsgId] = new MessageLink(msg.Chat.Id, msg.Id);
+
+            await _bot.SendMessage(_specialistChatId, $"Обратная связь. Id = {_intrnlMsgId}");
+
+            _intrnlMsgId++;
+
+            await _bot.ForwardMessage(_specialistChatId, msg.Chat, msg.Id);
+            await _bot.SendMessage(msg.Chat, "Ваше сообщение передано специалисту");
+
+            await OnStartMessage(msg);
+        }
+    }
+
+    /// <summary>
+    /// Обработка ответа специалиста на обратную связь
+    /// </summary>
+    /// <param name="msg">Сообщение специалиста, отвечающее на пересланное ему сообщение</param>
+    /// <returns></returns>
+    async Task OnFeedbackAnswer(Message msg)
+    {
+        Regex regex = new Regex(@"/a\s+(\d+)\s+(.*)", RegexOptions.Compiled);
+
+        Match match = regex.Match(msg.Text);
+
+        if (!match.Success)
+        {
+            await _bot.SendMessage(msg.Chat, $"Ваш запрос составлен неверно. Формат: {regex.ToString}");
+            await OnStartMessage(msg);
+        }
+
+        else
+        {
+            int userMessageId = int.Parse(match.Groups[1].Value);
+            string textToUser = match.Groups[2].Value;
+
+            if (!_intrnlMsgIdToMsgLink.ContainsKey(userMessageId))
+            {
+                await _bot.SendMessage(msg.Chat, "ID сообщения пользователя не был найден в словаре");
+                return;
+            }
+
+            MessageLink messageLink = _intrnlMsgIdToMsgLink[userMessageId];
+
+            await _bot.SendMessage(messageLink.ChatId, textToUser, replyParameters: messageLink.MsgId);
+        }
     }
 
     /// <summary>
@@ -123,18 +208,40 @@ class Controller
                     await HandleBotError(msg);
 
                     Console.WriteLine("Ошибка выполнения HTTP запроса: " + ex);
-                    return;
                 }
 
-                await OnStartMessage(msg);
+                break;
+
+            case RequestedScenario.CommunicationWithOperator:
+                try
+                {
+                    await OnCommunicationWithOperator(msg);
+                }
+
+                catch (HttpRequestException ex)
+                {
+                    await HandleBotError(msg);
+
+                    Console.WriteLine("Ошибка выполнения HTTP запроса: " + ex);
+                }
 
                 break;
+
+            case RequestedScenario.Feedback:
+                await OnFeedback(msg);
+                break;
+
             case RequestedScenario _:
                 await _bot.SendMessage(msg.Chat, "Сценарий не реализован");
                 break;
         }
     }
 
+    /// <summary>
+    /// Обработка ошибки на стороне бота
+    /// </summary>
+    /// <param name="msg">Сообщение от пользователя перед ошибкой</param>
+    /// <returns></returns>
     async Task HandleBotError(Message msg)
     {
         _idToUserState[msg.From.Id].AtError = true;
@@ -146,6 +253,11 @@ class Controller
             );
     }
 
+    /// <summary>
+    /// Обработка сообщения после ошибки
+    /// </summary>
+    /// <param name="msg">Сообщение от пользователя после того как ему сообщили об ошибке</param>
+    /// <returns></returns>
     async Task HandleMsgAfterBotError(Message msg)
     {
         string lower = msg.Text.ToLower();
@@ -184,7 +296,17 @@ class Controller
             await OnStartMessage(msg);
         }
 
+        else if (msg.Text.StartsWith("/a ") && msg.Chat.Id == _specialistChatId)
+        {
+            await OnFeedbackAnswer(msg);
+        }
+
         // State != ChoosingScenario должен быть обработан здесь
+
+        else if (_idToUserState[msg.From.Id].State == States.InLongScenario)
+        {
+            await ExecuteScenario(msg, _idToUserState[msg.From.Id].CurrentScenario);
+        }
 
         else if (_idToUserState[msg.From.Id].AtError)
         {
@@ -215,8 +337,13 @@ class UserState
     /// Сообщения пользователя, которые требуется хранить
     /// </summary>
     public List<string>? ImportantMessages { get; }
+    /// <summary>
+    /// Возникла ли ошибка
+    /// </summary>
     public bool AtError { get; set; }
-
+    /// <summary>
+    /// Выполняется длинный сценарий или пользователь выбирает сценарий
+    /// </summary>
     public States State { get; set; }
 
     public UserState()
@@ -228,7 +355,7 @@ class UserState
 }
 
 /// <summary>
-/// Состояние пользователя: ошибка, выбор сценарий или выполнение
+/// Состояние пользователя: выбор сценарий или выполнение
 /// сценария, для которого нужно отправить несколько сообщений
 /// </summary>
 enum States
@@ -236,3 +363,10 @@ enum States
     ChoosingScenario,
     InLongScenario
 };
+
+/// <summary>
+/// Ссылка на сообщение
+/// </summary>
+/// <param name="ChatId">ID чата</param>
+/// <param name="MsgId">ID сообщения</param>
+record MessageLink(ChatId ChatId, int MsgId);
