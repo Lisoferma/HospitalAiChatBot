@@ -13,6 +13,4 @@ public class Question
     public required string Contacts { get; set; }
 
     public required string Text { get; set; }
-
-    public bool IsAnswered { get; set; } = false;
 }
