@@ -1,22 +1,23 @@
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using Telegram.Bot;
 
-const string TOKEN_FILENAME = "token.txt";
 const string USERSTATE_FILENAME = "userstate.json";
 
-string botToken;
+IConfigurationRoot config = new ConfigurationBuilder()
+            .AddUserSecrets<Program>()
+            .Build();
 
-try
-{
-    botToken = File.ReadAllText(TOKEN_FILENAME);
-}
+string? botToken = config.GetValue<string>("botToken");
+string? specialistChatIdStr = config["specialistChatId"];
 
-catch (FileNotFoundException)
+if (botToken == null || specialistChatIdStr == null)
 {
-    Console.WriteLine("Не найден файл с токеном token.txt");
-    Console.WriteLine("Программа не может выполняться без этого файла");
+    Console.WriteLine("Для запуска бота в json.txt необходимо задать ключи botToken и specialistChatId");
     return;
 }
+
+long specialistChatId = long.Parse(specialistChatIdStr);
 
 
 Dictionary<long, UserState> idToUserState;
@@ -25,7 +26,8 @@ try
 {
     // Чтение состояний пользователей из файла
     string readenJson = File.ReadAllText(USERSTATE_FILENAME);
-    idToUserState = JsonSerializer.Deserialize<Dictionary<long, UserState>>(readenJson);
+    idToUserState = JsonSerializer.Deserialize<Dictionary<long, UserState>>(readenJson)
+        ?? new Dictionary<long,UserState>();
 }
 
 catch (FileNotFoundException)
@@ -39,7 +41,8 @@ catch (FileNotFoundException)
 using var cts = new CancellationTokenSource();
 Controller controller = new Controller(
     new TelegramBotClient(botToken, cancellationToken: cts.Token),
-    idToUserState);
+    idToUserState,
+    specialistChatId);
 
 Console.WriteLine("Для завершения работы нажмите Enter");
 
