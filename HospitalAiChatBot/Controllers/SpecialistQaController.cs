@@ -22,12 +22,14 @@ namespace HospitalAiChatbot.Controllers
 
 
         [HttpPost]
-        public string PostQuestion([FromBody] string text)
+        public async Task<string> PostQuestionAsync([FromBody] Question question)
         {
-            Question? question = JsonSerializer.Deserialize<Question>(text);
+            await _repository.AddAsync(question);
 
-            if (question != null)
-                _repository.AddAsync(question);
+            IEnumerable<Question> result = await _repository.GetAllAsync();
+            List<Question> questions = result.ToList();
+
+            Console.WriteLine(questions);
 
             return "Благодарим вас за вопрос!";
         }
