@@ -13,7 +13,7 @@ string? specialistChatIdStr = config["specialistChatId"];
 
 if (botToken == null || specialistChatIdStr == null)
 {
-    Console.WriteLine("Для запуска бота в json.txt необходимо задать ключи botToken и specialistChatId");
+    Console.WriteLine("Для запуска бота в secrets.json необходимо задать ключи botToken и specialistChatId");
     return;
 }
 
@@ -27,7 +27,7 @@ try
     // Чтение состояний пользователей из файла
     string readenJson = File.ReadAllText(USERSTATE_FILENAME);
     idToUserState = JsonSerializer.Deserialize<Dictionary<long, UserState>>(readenJson)
-        ?? new Dictionary<long,UserState>();
+        ?? new Dictionary<long, UserState>();
 }
 
 catch (FileNotFoundException)

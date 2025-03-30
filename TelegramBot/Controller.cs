@@ -1,4 +1,5 @@
-﻿using HospitalAiChatBot.Models.ScenarioDeterminant;
+﻿using HospitalAiChatBot.Models;
+using HospitalAiChatBot.Models.ScenarioDeterminant;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -32,7 +33,7 @@ class Controller
         _strToScenario.Add("Часы работы специалиста", RequestedScenario.GetDoctorWorkTime);
         _strToScenario.Add("Подготовка к исследованию", RequestedScenario.GetExaminationPrepareInfo);
         _strToScenario.Add("Время изготовления анализов", RequestedScenario.GetSamplesPreparingTimeInfo);
-        _strToScenario.Add("Записаться к специалисту", RequestedScenario.MakeAppointment);
+        _strToScenario.Add("Записаться к врачу", RequestedScenario.MakeAppointment);
         _strToScenario.Add("Обратная связь", RequestedScenario.Feedback);
         _strToScenario.Add("Связаться с оператором", RequestedScenario.CommunicationWithOperator);
         _strToScenario.Add("Отложенный звонок", RequestedScenario.DefferedAnswer);
@@ -120,6 +121,11 @@ class Controller
         await OnStartMessage(msg);
     }
 
+    /// <summary>
+    /// Возвращает контакты колл-центра
+    /// </summary>
+    /// <param name="msg">Собщение пользователя</param>
+    /// <returns></returns>
     async Task OnCommunicationWithOperator(Message msg)
     {
         HttpResponseMessage contactsResp;
@@ -135,21 +141,73 @@ class Controller
         await OnStartMessage(msg);
     }
 
-    async Task OnFeedback(Message msg)
+    /// <summary>
+    /// Возврат информации о подготовке к исследованиям
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <returns></returns>
+    async Task OnGetExaminationPrepareInfo(Message msg)
     {
+        await _bot.SendMessage(msg.Chat, "Файл с информацией о подготовке к исследованиям:\n" +
+            ChitgmaClinicScraper.PREPARING_PROCEDURE_URL);
+
+        await OnStartMessage(msg);
+    }
+
+    /// <summary>
+    /// Возврат информации о времени изготовления анализов
+    /// </summary>
+    /// <param name="msg">Сообщение пользователя</param>
+    /// <returns></returns>
+    async Task OnGetSamplesPreparingTimeInfo(Message msg)
+    {
+        await _bot.SendMessage(msg.Chat, """
+        Сроки изготовления анализов согласно прайса:
+          общеклинические в течении дня сдачи анализа,
+          бактериологические исследования от 1 до 14 рабочих дней (зависит от исследования),
+          молекулярная диагностика и иммунохроматографический анализ уточняются индивидуально        
+        """);
+
+        await OnStartMessage(msg);
+    }
+
+    /// <summary>
+    /// Получение от специалиста времени работы врача или вообще обратная связь
+    /// </summary>
+    /// <param name="msg">Сообщение от пользователя</param>
+    /// <returns></returns>
+    async Task OnFeedbackOrGetDoctorWorkingTime(Message msg)
+    {
+        RequestedScenario scenario = _idToUserState[msg.From.Id].CurrentScenario;
+
         if (_idToUserState[msg.From.Id].State == States.ChoosingScenario)
         {
-            await _bot.SendMessage(msg.Chat, "Вы можете оставить отзыв или предложение, а также написать вопрос для специалиста");
+            string welcomeToScenarioMsg = scenario switch
+            {
+                RequestedScenario.GetDoctorWorkTime => "Время работы какого специалиста вы желаете узнать?",
+                // RequestedScenario.Feedback
+                _ => "Вы можете оставить отзыв или предложение, а также написать вопрос для специалиста",
+            };
+
+            await _bot.SendMessage(msg.Chat, welcomeToScenarioMsg);
+
             _idToUserState[msg.From.Id].State = States.InLongScenario;
         }
 
         else
         {
+            string textToSpecialist = scenario switch
+            {
+                RequestedScenario.GetDoctorWorkTime => $"Время работы. ID обращения = {_intrnlMsgId}",
+                // RequestedScenario.Feedback
+                _ => $"Обратная связь. ID обращения = {_intrnlMsgId}"
+            };
+
             _intrnlMsgIdToMsgLink[_intrnlMsgId] = new MessageLink(msg.Chat.Id, msg.Id);
 
-            await _bot.SendMessage(_specialistChatId, $"Обратная связь. Id = {_intrnlMsgId}");
-
             _intrnlMsgId++;
+
+            await _bot.SendMessage(_specialistChatId, textToSpecialist);
 
             await _bot.ForwardMessage(_specialistChatId, msg.Chat, msg.Id);
             await _bot.SendMessage(msg.Chat, "Ваше сообщение передано специалисту");
@@ -163,15 +221,16 @@ class Controller
     /// </summary>
     /// <param name="msg">Сообщение специалиста, отвечающее на пересланное ему сообщение</param>
     /// <returns></returns>
-    async Task OnFeedbackAnswer(Message msg)
+    async Task OnFeedbackOrGetDoctorWorkingTimeAnswer(Message msg)
     {
-        Regex regex = new Regex(@"/a\s+(\d+)\s+(.*)", RegexOptions.Compiled);
+        string regexAsStr = @"/a\s+(\d+)\s+((?:.|\n)+)";
+        Regex regex = new Regex(regexAsStr, RegexOptions.Compiled);
 
         Match match = regex.Match(msg.Text);
 
         if (!match.Success)
         {
-            await _bot.SendMessage(msg.Chat, $"Ваш запрос составлен неверно. Формат: {regex.ToString}");
+            await _bot.SendMessage(msg.Chat, $"Ваш запрос составлен неверно. Формат: {regexAsStr}");
             await OnStartMessage(msg);
         }
 
@@ -192,7 +251,12 @@ class Controller
         }
     }
 
-    async Task OnDeferredAnswer(Message msg)
+    /// <summary>
+    /// Обратный звонок
+    /// </summary>
+    /// <param name="msg">Сообщение пользователя</param>
+    /// <returns></returns>
+    async Task OnPromiseToCall(Message msg)
     {
         if (_idToUserState[msg.From.Id].State == States.ChoosingScenario)
         {
@@ -244,6 +308,7 @@ class Controller
                 break;
 
             case RequestedScenario.CommunicationWithOperator:
+            case RequestedScenario.MakeAppointment:
                 try
                 {
                     await OnCommunicationWithOperator(msg);
@@ -257,12 +322,22 @@ class Controller
                 }
 
                 break;
-            case RequestedScenario.DefferedAnswer:
-                await OnDeferredAnswer(msg);
+
+            case RequestedScenario.GetExaminationPrepareInfo:
+                await OnGetExaminationPrepareInfo(msg);
+                break;
+
+            case RequestedScenario.GetSamplesPreparingTimeInfo:
+                await OnGetSamplesPreparingTimeInfo(msg);
+                break;
+
+            case RequestedScenario.PromiseToCall:
+                await OnPromiseToCall(msg);
                 break;
 
             case RequestedScenario.Feedback:
-                await OnFeedback(msg);
+            case RequestedScenario.GetDoctorWorkTime:
+                await OnFeedbackOrGetDoctorWorkingTime(msg);
                 break;
 
             case RequestedScenario _:
@@ -321,7 +396,12 @@ class Controller
         Console.WriteLine(exception);
     }
 
-    // Обработка полученных сообщений
+    /// <summary>
+    /// Обработка полученных сообщений
+    /// </summary>
+    /// <param name="msg">Сообщение пользователя</param>
+    /// <param name="type"></param>
+    /// <returns></returns>
     async Task OnMessage(Message msg, UpdateType type)
     {
         // Если в таблице не хранится состояния пользователя, тоже переходим к OnStartMessage
@@ -332,7 +412,7 @@ class Controller
 
         else if (msg.Text?.StartsWith("/a ") ?? false && msg.Chat.Id == _specialistChatId)
         {
-            await OnFeedbackAnswer(msg);
+            await OnFeedbackOrGetDoctorWorkingTimeAnswer(msg);
         }
 
         // State != ChoosingScenario должен быть обработан здесь
