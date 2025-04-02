@@ -32,3 +32,13 @@
 
 ## UML-диаграмма классов
 ![uml-class-diagram](https://github.com/user-attachments/assets/d90c0d23-3983-44ae-891e-82abf4d77665)
+
+## OpenAPI endpoints
+- /api/health
+- /api/qa
+- /api/specialistqa
+- /api/feedback
+- /api/voicerecognition
+- /api/scrape/callcentercontacts
+- /api/scrape/openinghours
+
