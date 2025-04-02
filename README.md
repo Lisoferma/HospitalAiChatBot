@@ -1,4 +1,5 @@
 # HospitalAIChatbot
+![BotScreenshot](https://github.com/user-attachments/assets/e515a006-6da7-469c-af60-a954d26d9308)
 
 # Инструкция по запуску чат-бота
 
